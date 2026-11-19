@@ -60,6 +60,25 @@ export interface Product {
   isLowStock: boolean
 }
 
+// ---------- Autenticación ----------
+
+export type UserRole = 'Admin' | 'Manager' | 'Seller'
+
+export interface User {
+  id: string
+  email: string
+  fullName: string
+  role: UserRole
+  branchId: string | null
+  branchName: string | null
+}
+
+export interface AuthResponse {
+  accessToken: string
+  expiresAt: string
+  user: User
+}
+
 export interface PagedResult<T> {
   items: T[]
   page: number
