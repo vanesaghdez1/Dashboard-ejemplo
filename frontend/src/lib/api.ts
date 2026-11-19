@@ -11,10 +11,15 @@ type QueryParams = Record<string, string | number | undefined | null>
 
 export class ApiError extends Error {
   readonly status: number
+  /** Errores de validación por campo, p. ej. { price: "El precio debe ser mayor a 0." } */
+  readonly fieldErrors: Record<string, string>
+  readonly detail?: string
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, fieldErrors: Record<string, string> = {}, detail?: string) {
     super(message)
     this.status = status
+    this.fieldErrors = fieldErrors
+    this.detail = detail
   }
 }
 
@@ -65,6 +70,7 @@ interface RequestOptions {
   params?: QueryParams
   body?: unknown
   signal?: AbortSignal
+  responseType?: 'json' | 'blob'
 }
 
 async function request<T>(method: string, path: string, options: RequestOptions = {}, canRetry = true): Promise<T> {
@@ -93,13 +99,38 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   }
 
   if (!response.ok) {
-    // ASP.NET devuelve errores como ProblemDetails ({ title, detail, status })
+    // ASP.NET devuelve errores como ProblemDetails ({ title, detail, status, errors? })
     const problem = await response.json().catch(() => null)
-    throw new ApiError(response.status, problem?.title ?? defaultMessage(response.status))
+    throw new ApiError(
+      response.status,
+      problem?.title ?? defaultMessage(response.status),
+      toFieldErrors(problem?.errors),
+      problem?.detail,
+    )
   }
 
   if (response.status === 204) return undefined as T
+  if (options.responseType === 'blob') {
+    return { blob: await response.blob(), fileName: fileNameFrom(response) } as T
+  }
   return response.json() as Promise<T>
+}
+
+/** { "Price": ["..."] } → { price: "..." } (camelCase, primer mensaje) para mostrarlo junto a cada input. */
+function toFieldErrors(errors: unknown): Record<string, string> {
+  if (!errors || typeof errors !== 'object') return {}
+  return Object.fromEntries(
+    Object.entries(errors as Record<string, string[]>).map(([key, messages]) => [
+      key.charAt(0).toLowerCase() + key.slice(1),
+      messages[0] ?? '',
+    ]),
+  )
+}
+
+function fileNameFrom(response: Response) {
+  const header = response.headers.get('Content-Disposition') ?? ''
+  const match = /filename\*=UTF-8''([^;]+)/i.exec(header) ?? /filename="?([^";]+)"?/i.exec(header)
+  return match ? decodeURIComponent(match[1]) : 'descarga'
 }
 
 function defaultMessage(status: number) {
@@ -113,3 +144,24 @@ export const apiGet = <T>(path: string, params?: QueryParams, signal?: AbortSign
   request<T>('GET', path, { params, signal })
 
 export const apiPost = <T>(path: string, body?: unknown) => request<T>('POST', path, { body })
+
+export const apiPut = <T>(path: string, body: unknown) => request<T>('PUT', path, { body })
+
+export const apiDelete = (path: string) => request<void>('DELETE', path)
+
+/**
+ * Descarga un archivo (p. ej. Excel). Se usa fetch (y no un simple <a href>) porque la
+ * petición necesita el token en el header Authorization.
+ */
+export async function apiDownload(path: string, params?: QueryParams) {
+  const { blob, fileName } = await request<{ blob: Blob; fileName: string }>('GET', path, {
+    params,
+    responseType: 'blob',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000) // liberar memoria cuando el navegador ya tomó el archivo
+}

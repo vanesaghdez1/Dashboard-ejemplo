@@ -10,6 +10,7 @@ import { formatCurrency, formatMonth, formatNumber, formatPercent, toIsoDate } f
 import type { DashboardFilter } from '../../types/api'
 import { QueryError } from '../../components/QueryError'
 import { useAuth } from '../auth/auth-context'
+import { ExportButton } from '../../components/ExportButton'
 
 function rangeToFilter(range: RangePreset): Pick<DashboardFilter, 'from' | 'to'> {
   if (range === 'all') return {}
@@ -52,6 +53,7 @@ export function DashboardPage() {
           onBranchChange={setBranchId}
           branches={branches.data ?? []}
           lockedBranchName={isManager ? user?.branchName : null}
+          actions={<ExportButton path="/api/dashboard/export" params={{ ...filter }} />}
         />
       </header>
 

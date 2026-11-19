@@ -60,6 +60,22 @@ export interface Product {
   isLowStock: boolean
 }
 
+export interface ProductDetail {
+  id: string
+  sku: string
+  name: string
+  categoryId: string
+  price: number
+  cost: number
+  stock: number
+  minStock: number
+}
+
+export interface Category {
+  id: string
+  name: string
+}
+
 // ---------- Autenticación ----------
 
 export type UserRole = 'Admin' | 'Manager' | 'Seller'

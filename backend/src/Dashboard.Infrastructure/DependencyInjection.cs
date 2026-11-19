@@ -2,6 +2,7 @@ using Dashboard.Application.Common;
 using Dashboard.Application.Features.Auth;
 using Dashboard.Infrastructure.Auth;
 using Dashboard.Infrastructure.Persistence;
+using Dashboard.Infrastructure.Reports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,7 @@ public static class DependencyInjection
 
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IAppPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IExcelExporter, ExcelExporter>();
 
         return services;
     }
