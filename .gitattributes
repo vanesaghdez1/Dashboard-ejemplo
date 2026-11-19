@@ -1,0 +1,3 @@
+# Normaliza fines de línea en el repositorio (LF), Git los adapta al sistema al hacer checkout.
+* text=auto
+*.sh text eol=lf
