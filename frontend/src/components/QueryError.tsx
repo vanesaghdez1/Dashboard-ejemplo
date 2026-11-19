@@ -1,4 +1,5 @@
 import { AlertCircle } from 'lucide-react'
+import { ApiError } from '../lib/api'
 
 /** Mensaje de error reutilizable para cualquier petición fallida. */
 export function QueryError({ error, onRetry }: { error: Error; onRetry: () => void }) {
@@ -7,7 +8,9 @@ export function QueryError({ error, onRetry }: { error: Error; onRetry: () => vo
       <AlertCircle size={18} className="text-critical shrink-0" aria-hidden />
       <div className="flex-1">
         <p className="text-ink font-medium">No se pudieron cargar los datos</p>
-        <p className="text-ink-3">{error.message}. ¿Está corriendo la API en el puerto 5080?</p>
+        <p className="text-ink-3">
+          {error instanceof ApiError ? error.message : `${error.message}. ¿Está corriendo la API en el puerto 5080?`}
+        </p>
       </div>
       <button
         type="button"

@@ -9,6 +9,7 @@ import { RankedBars } from './components/RankedBars'
 import { formatCurrency, formatMonth, formatNumber, formatPercent, toIsoDate } from '../../lib/format'
 import type { DashboardFilter } from '../../types/api'
 import { QueryError } from '../../components/QueryError'
+import { useAuth } from '../auth/auth-context'
 
 function rangeToFilter(range: RangePreset): Pick<DashboardFilter, 'from' | 'to'> {
   if (range === 'all') return {}
@@ -28,6 +29,8 @@ function rangeToFilter(range: RangePreset): Pick<DashboardFilter, 'from' | 'to'>
 export function DashboardPage() {
   const [range, setRange] = useState<RangePreset>('12m')
   const [branchId, setBranchId] = useState('')
+  const { user } = useAuth()
+  const isManager = user?.role === 'Manager'
 
   const filter: DashboardFilter = { ...rangeToFilter(range), branchId: branchId || undefined }
 
@@ -48,6 +51,7 @@ export function DashboardPage() {
           branchId={branchId}
           onBranchChange={setBranchId}
           branches={branches.data ?? []}
+          lockedBranchName={isManager ? user?.branchName : null}
         />
       </header>
 
@@ -92,7 +96,7 @@ export function DashboardPage() {
             }
           />
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className={`grid grid-cols-1 gap-6 ${isManager ? '' : 'lg:grid-cols-2'}`}>
             <ChartCard
               title="Productos más vendidos"
               subtitle="Top 5 por ingresos"
@@ -112,25 +116,28 @@ export function DashboardPage() {
                 />
               }
             />
-            <ChartCard
-              title="Ventas por sucursal"
-              subtitle="Ingresos del periodo"
-              chart={
-                <RankedBars
-                  items={data.salesByBranch.map((b) => ({
-                    name: b.branch,
-                    value: b.revenue,
-                    detail: `${formatNumber(b.orders)} ventas`,
-                  }))}
-                />
-              }
-              table={
-                <DataTable
-                  headers={['Sucursal', 'Ventas', 'Ingresos']}
-                  rows={data.salesByBranch.map((b) => [b.branch, formatNumber(b.orders), formatCurrency(b.revenue)])}
-                />
-              }
-            />
+            {/* Comparar sucursales solo tiene sentido si ves más de una (Admin) */}
+            {!isManager && (
+              <ChartCard
+                title="Ventas por sucursal"
+                subtitle="Ingresos del periodo"
+                chart={
+                  <RankedBars
+                    items={data.salesByBranch.map((b) => ({
+                      name: b.branch,
+                      value: b.revenue,
+                      detail: `${formatNumber(b.orders)} ventas`,
+                    }))}
+                  />
+                }
+                table={
+                  <DataTable
+                    headers={['Sucursal', 'Ventas', 'Ingresos']}
+                    rows={data.salesByBranch.map((b) => [b.branch, formatNumber(b.orders), formatCurrency(b.revenue)])}
+                  />
+                }
+              />
+            )}
           </div>
         </div>
       )}

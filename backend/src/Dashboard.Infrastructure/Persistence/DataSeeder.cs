@@ -1,3 +1,4 @@
+using Dashboard.Application.Features.Auth;
 using Dashboard.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,11 +9,43 @@ namespace Dashboard.Infrastructure.Persistence;
 /// Genera datos de demostración realistas (12 meses de ventas) para que el dashboard
 /// no se vea vacío. Usa una semilla fija: siempre genera los mismos datos.
 /// </summary>
-public class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
+public class DataSeeder(AppDbContext db, IPasswordHasher passwordHasher, ILogger<DataSeeder> logger)
 {
+    /// <summary>Contraseña de las cuentas de demostración (pública a propósito: es un portafolio).</summary>
+    public const string DemoPassword = "Demo123!";
+
     private readonly Random _rng = new(42);
 
     public async Task SeedAsync(CancellationToken ct = default)
+    {
+        // Cada bloque revisa por separado si ya existe, así una BD vieja recibe lo que le falte.
+        await SeedSalesDataAsync(ct);
+        await SeedUsersAsync(ct);
+    }
+
+    private async Task SeedUsersAsync(CancellationToken ct)
+    {
+        if (await db.Users.AnyAsync(ct))
+            return;
+
+        var cdmx = await db.Branches.FirstAsync(b => b.Name == "CDMX Centro", ct);
+        var monterrey = await db.Branches.FirstAsync(b => b.Name == "Monterrey Valle", ct);
+
+        var users = new List<User>
+        {
+            new() { Email = "admin@ventasmx.demo", FullName = "Andrea Admin", Role = UserRole.Admin },
+            new() { Email = "gerente@ventasmx.demo", FullName = "Gabriel Gerente", Role = UserRole.Manager, BranchId = monterrey.Id },
+            new() { Email = "vendedor@ventasmx.demo", FullName = "Valeria Vendedora", Role = UserRole.Seller, BranchId = cdmx.Id },
+        };
+        foreach (var user in users)
+            user.PasswordHash = passwordHasher.Hash(user, DemoPassword);
+
+        db.Users.AddRange(users);
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("Usuarios de demo creados: {Emails}", string.Join(", ", users.Select(u => u.Email)));
+    }
+
+    private async Task SeedSalesDataAsync(CancellationToken ct)
     {
         if (await db.Branches.AnyAsync(ct))
             return; // ya hay datos

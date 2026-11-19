@@ -1,3 +1,4 @@
+using Dashboard.Api.Auth;
 using Dashboard.Application.Features.Dashboard;
 
 namespace Dashboard.Api.Endpoints;
@@ -6,7 +7,10 @@ public static class DashboardEndpoints
 {
     public static IEndpointRouteBuilder MapDashboardEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/dashboard").WithTags("Dashboard");
+        // Solo Admin y Gerente (el Vendedor recibe 403 Forbidden).
+        var group = app.MapGroup("/api/dashboard")
+            .WithTags("Dashboard")
+            .RequireAuthorization(Policies.CanViewDashboard);
 
         // GET /api/dashboard/summary?from=2026-01-01&to=2026-06-30&branchId=...
         group.MapGet("/summary", async (

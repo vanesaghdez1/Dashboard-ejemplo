@@ -1,3 +1,4 @@
+using Dashboard.Application.Features.Auth;
 using Dashboard.Application.Features.Branches;
 using Dashboard.Application.Features.Dashboard;
 using Dashboard.Application.Features.Products;
@@ -10,6 +11,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<AuthService>();
         services.AddScoped<DashboardService>();
         services.AddScoped<ProductService>();
         services.AddScoped<BranchService>();

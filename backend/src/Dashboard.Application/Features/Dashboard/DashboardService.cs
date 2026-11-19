@@ -8,10 +8,15 @@ namespace Dashboard.Application.Features.Dashboard;
 /// Caso de uso: calcular los KPIs del dashboard.
 /// Las agregaciones (SUM, COUNT, GROUP BY) se ejecutan en la base de datos, no en memoria.
 /// </summary>
-public class DashboardService(IAppDbContext db)
+public class DashboardService(IAppDbContext db, ICurrentUser currentUser)
 {
     public async Task<DashboardSummaryDto> GetSummaryAsync(DashboardFilter filter, CancellationToken ct)
     {
+        // Seguridad a nivel de datos: un Gerente SIEMPRE ve solo su sucursal,
+        // sin importar qué branchId haya mandado el frontend.
+        if (currentUser.Role == UserRole.Manager)
+            filter = filter with { BranchId = currentUser.BranchId };
+
         var sales = ApplyFilter(db.Sales.AsNoTracking(), filter);
         var items = sales.SelectMany(s => s.Items);
 

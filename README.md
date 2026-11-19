@@ -8,7 +8,7 @@ Backend en **.NET 10** con Clean Architecture, base de datos **PostgreSQL** y fr
 | Capa | Tecnología |
 |---|---|
 | Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, Tailwind CSS, Recharts |
-| API | ASP.NET Core 10 (Minimal APIs), OpenAPI + Scalar |
+| API | ASP.NET Core 10 (Minimal APIs), JWT Bearer, rate limiting, OpenAPI + Scalar |
 | Datos | EF Core 10, PostgreSQL 17 |
 | Infraestructura | Docker Compose |
 
@@ -47,6 +47,41 @@ Cambiar PostgreSQL por SQL Server solo implica tocar Infrastructure.
 6. `DashboardService` arma consultas LINQ sobre `IAppDbContext`; EF Core las traduce a SQL (`SUM`, `GROUP BY`) y las ejecuta en PostgreSQL.
 7. La respuesta viaja como JSON → TanStack Query la guarda en caché → React vuelve a pintar las gráficas.
 
+## Autenticación y roles
+
+JWT de corta duración (15 min) + refresh token con rotación en cookie `HttpOnly`.
+
+```mermaid
+sequenceDiagram
+    participant R as React
+    participant A as API .NET
+    participant D as PostgreSQL
+    R->>A: POST /api/auth/login {email, password}
+    A->>D: busca usuario y verifica hash (PBKDF2)
+    A-->>R: { accessToken (JWT) } + cookie HttpOnly refresh_token
+    R->>A: GET /api/dashboard/summary · Authorization: Bearer JWT
+    A-->>R: 200 datos (o 401 si venció)
+    R->>A: POST /api/auth/refresh (el navegador manda la cookie)
+    A->>D: revoca el refresh token usado y guarda uno nuevo (rotación)
+    A-->>R: nuevo JWT → React reintenta la petición original
+```
+
+| Rol | Cuenta demo | Acceso |
+|---|---|---|
+| Administrador | `admin@ventasmx.demo` | Dashboard de todas las sucursales + productos |
+| Gerente | `gerente@ventasmx.demo` | Dashboard **solo de su sucursal** (Monterrey) + productos |
+| Vendedor | `vendedor@ventasmx.demo` | Solo productos (el dashboard responde 403) |
+
+Contraseña de todas las cuentas demo: `Demo123!`
+
+Decisiones de seguridad:
+- **Contraseñas** con hash PBKDF2 + salt (`PasswordHasher` de ASP.NET Identity); nunca en texto plano.
+- **Access token en memoria** (no en `localStorage`) para reducir el impacto de un XSS; se recupera al recargar con la cookie.
+- **Refresh token** en cookie `HttpOnly` + `SameSite=Strict`, guardado en BD solo como hash SHA-256. Cada uno sirve una vez; si se reutiliza uno ya usado, se revocan todas las sesiones del usuario.
+- **Autorización en el backend**: políticas por rol en los endpoints y filtrado de datos por sucursal en los servicios (el frontend solo oculta opciones, no protege).
+- **Rate limiting** en el login (10 intentos/min por IP).
+- La clave de firma JWT se valida al arrancar (mín. 32 caracteres). En producción se define con la variable de entorno `Jwt__Key`.
+
 ## Cómo correrlo
 
 Requisitos: .NET SDK 10, Node 22+, Docker Desktop.
@@ -80,12 +115,16 @@ docker compose down -v && docker compose up -d
 
 ## Endpoints
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/api/dashboard/summary?from&to&branchId` | KPIs, ventas por mes, top productos, ventas por sucursal |
-| GET | `/api/products?search&page&pageSize` | Productos paginados con búsqueda |
-| GET | `/api/branches` | Catálogo de sucursales |
-| GET | `/health` | Health check |
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| POST | `/api/auth/login` | Público (rate limit) | Inicia sesión |
+| POST | `/api/auth/refresh` | Cookie | Renueva el access token |
+| POST | `/api/auth/logout` | Cookie | Cierra sesión |
+| GET | `/api/auth/me` | Autenticado | Usuario actual |
+| GET | `/api/dashboard/summary?from&to&branchId` | Admin, Gerente | KPIs, ventas por mes, top productos, ventas por sucursal |
+| GET | `/api/products?search&page&pageSize` | Autenticado | Productos paginados con búsqueda |
+| GET | `/api/branches` | Autenticado | Sucursales visibles para el usuario |
+| GET | `/health` | Público | Health check |
 
 ## Estructura
 
@@ -98,7 +137,8 @@ backend/
     Dashboard.Api/             Program.cs + endpoints
 frontend/
   src/
-    lib/                       cliente HTTP, formatos, tema
+    lib/                       cliente HTTP (token + refresh automático), formatos, tema
+    features/auth/             login, contexto de sesión, guardias de ruta por rol
     types/                     tipos espejo de los DTOs
     components/                layout y componentes compartidos
     features/dashboard/        página, queries y gráficas del dashboard
@@ -108,7 +148,7 @@ docker-compose.yml             PostgreSQL local
 
 ## Roadmap
 
-- [ ] Autenticación JWT + roles (Admin, Gerente, Vendedor)
+- [x] Autenticación JWT + refresh token + roles (Admin, Gerente, Vendedor)
 - [ ] CRUD de productos con validación (FluentValidation + React Hook Form + Zod)
 - [ ] Exportar a Excel / PDF
 - [ ] Notificaciones en tiempo real con SignalR

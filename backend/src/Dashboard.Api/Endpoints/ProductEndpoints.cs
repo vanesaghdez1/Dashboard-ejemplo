@@ -6,7 +6,8 @@ public static class ProductEndpoints
 {
     public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/products").WithTags("Products");
+        // Cualquier usuario con sesión iniciada (401 si no hay token).
+        var group = app.MapGroup("/api/products").WithTags("Products").RequireAuthorization();
 
         // GET /api/products?search=mouse&page=1&pageSize=10
         group.MapGet("/", async (

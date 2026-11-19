@@ -16,10 +16,12 @@ interface FiltersProps {
   branchId: string
   onBranchChange: (branchId: string) => void
   branches: Branch[]
+  /** Si viene, el usuario está limitado a esta sucursal (Gerente): se muestra fija, sin selector. */
+  lockedBranchName?: string | null
 }
 
 /** Barra de filtros en una sola fila, arriba de las gráficas. */
-export function Filters({ range, onRangeChange, branchId, onBranchChange, branches }: FiltersProps) {
+export function Filters({ range, onRangeChange, branchId, onBranchChange, branches, lockedBranchName }: FiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="border-line bg-surface flex rounded-lg border p-0.5" role="group" aria-label="Periodo">
@@ -38,6 +40,20 @@ export function Filters({ range, onRangeChange, branchId, onBranchChange, branch
         ))}
       </div>
 
+      {lockedBranchName ? (
+        <span className="border-line bg-surface text-ink-2 rounded-lg border px-3 py-2 text-sm">
+          Sucursal: <span className="text-ink font-medium">{lockedBranchName}</span>
+        </span>
+      ) : (
+        <BranchSelect branchId={branchId} onBranchChange={onBranchChange} branches={branches} />
+      )}
+    </div>
+  )
+}
+
+function BranchSelect({ branchId, onBranchChange, branches }: Pick<FiltersProps, 'branchId' | 'onBranchChange' | 'branches'>) {
+  return (
+    <>
       <label className="sr-only" htmlFor="branch-filter">
         Sucursal
       </label>
@@ -54,6 +70,6 @@ export function Filters({ range, onRangeChange, branchId, onBranchChange, branch
           </option>
         ))}
       </select>
-    </div>
+    </>
   )
 }
