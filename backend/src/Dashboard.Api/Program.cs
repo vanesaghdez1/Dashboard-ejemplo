@@ -67,7 +67,8 @@ builder.Services.AddCors(options =>
         .WithOrigins(allowedOrigins)
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials()));
+        .AllowCredentials()
+        .WithExposedHeaders("Content-Disposition"))); // permite al frontend leer el nombre del archivo descargado
 
 var app = builder.Build();
 

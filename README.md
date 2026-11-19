@@ -3,14 +3,42 @@
 Dashboard de ventas e inventario para una PyME con varias sucursales.
 Backend en **.NET 10** con Clean Architecture, base de datos **PostgreSQL** y frontend en **React + TypeScript**.
 
+## Inicio rápido (demo local)
+
+Requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [.NET SDK 10](https://dotnet.microsoft.com/download) y [Node.js 22+](https://nodejs.org/).
+
+1. Doble clic en **`iniciar-demo.cmd`**: levanta la base de datos, la API y el frontend, y abre el navegador.
+2. Entra con una cuenta demo (botones en la pantalla de login, contraseña `Demo123!`).
+3. Al terminar, doble clic en **`detener-demo.cmd`**.
+
+## Funcionalidades
+
+- **Dashboard**: KPIs (ingresos, ventas, ticket promedio, margen, stock bajo), ingresos por mes, top productos y ventas por sucursal; filtros por periodo y sucursal; cada gráfica con vista de tabla.
+- **Productos**: búsqueda, paginación y estado de inventario; **alta, edición y baja** (solo Admin) con validación en navegador y servidor.
+- **Exportar a Excel**: reporte del dashboard (4 hojas) y catálogo de productos, respetando los permisos del usuario.
+- **Login con roles**: Admin, Gerente (limitado a su sucursal) y Vendedor (sin cifras financieras).
+- Modo claro/oscuro, diseño responsive, accesible (teclado, lectores de pantalla).
+
+## Guion de demo (3 minutos)
+
+1. **Login como Administrador** → dashboard completo. Cambia el periodo (3 / 6 / 12 meses) y la sucursal: todo se recalcula.
+2. Pasa el mouse por la gráfica (tooltip) y alterna **gráfica / tabla**. Activa el **modo oscuro**.
+3. **Exportar Excel** → abre el archivo: 4 hojas con formato.
+4. **Productos** → busca "silla", crea un producto con un error a propósito (precio menor al costo) para mostrar la validación; corrígelo, edítalo y elimínalo.
+5. Intenta eliminar un producto con ventas → el sistema lo impide y explica por qué (integridad de datos).
+6. **Cierra sesión y entra como Gerente** → solo ve Monterrey, sin poder cambiar de sucursal.
+7. **Entra como Vendedor** → no ve el dashboard ni los botones de edición. Menciona que no es solo la pantalla: la API responde 403.
+8. Cierra con la arquitectura: Clean Architecture, JWT con refresh token, validación en ambos lados, Docker.
+
 ## Stack
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, Tailwind CSS, Recharts |
-| API | ASP.NET Core 10 (Minimal APIs), JWT Bearer, rate limiting, OpenAPI + Scalar |
+| Frontend | React 19, TypeScript, Vite, TanStack Query, React Router, React Hook Form + Zod, Tailwind CSS, Recharts |
+| API | ASP.NET Core 10 (Minimal APIs), JWT Bearer, FluentValidation, rate limiting, OpenAPI + Scalar |
 | Datos | EF Core 10, PostgreSQL 17 |
-| Infraestructura | Docker Compose |
+| Reportes | ClosedXML (Excel) |
+| Infraestructura | Docker Compose, scripts de demo en PowerShell |
 
 ## Arquitectura
 
@@ -82,9 +110,9 @@ Decisiones de seguridad:
 - **Rate limiting** en el login (10 intentos/min por IP).
 - La clave de firma JWT se valida al arrancar (mín. 32 caracteres). En producción se define con la variable de entorno `Jwt__Key`.
 
-## Cómo correrlo
+## Cómo correrlo manualmente
 
-Requisitos: .NET SDK 10, Node 22+, Docker Desktop.
+(Lo mismo que hace `iniciar-demo.cmd`, paso a paso.)
 
 ```bash
 # 1. Base de datos
@@ -122,7 +150,14 @@ docker compose down -v && docker compose up -d
 | POST | `/api/auth/logout` | Cookie | Cierra sesión |
 | GET | `/api/auth/me` | Autenticado | Usuario actual |
 | GET | `/api/dashboard/summary?from&to&branchId` | Admin, Gerente | KPIs, ventas por mes, top productos, ventas por sucursal |
+| GET | `/api/dashboard/export?from&to&branchId` | Admin, Gerente | Reporte del dashboard en Excel |
 | GET | `/api/products?search&page&pageSize` | Autenticado | Productos paginados con búsqueda |
+| GET | `/api/products/export?search` | Autenticado | Catálogo en Excel |
+| GET | `/api/products/{id}` | Admin | Detalle para editar (incluye costo) |
+| POST | `/api/products` | Admin | Crea producto (400 con errores por campo) |
+| PUT | `/api/products/{id}` | Admin | Edita producto (el SKU no cambia) |
+| DELETE | `/api/products/{id}` | Admin | Elimina (409 si tiene ventas) |
+| GET | `/api/categories` | Autenticado | Catálogo de categorías |
 | GET | `/api/branches` | Autenticado | Sucursales visibles para el usuario |
 | GET | `/health` | Público | Health check |
 
@@ -149,8 +184,10 @@ docker-compose.yml             PostgreSQL local
 ## Roadmap
 
 - [x] Autenticación JWT + refresh token + roles (Admin, Gerente, Vendedor)
-- [ ] CRUD de productos con validación (FluentValidation + React Hook Form + Zod)
-- [ ] Exportar a Excel / PDF
+- [x] CRUD de productos con validación (FluentValidation + React Hook Form + Zod)
+- [x] Exportar a Excel
+- [x] Scripts para levantar/detener la demo local
+- [ ] Contenerizar API y frontend (Dockerfile + Nginx) y desplegar en un VPS
 - [ ] Notificaciones en tiempo real con SignalR
 - [ ] Pruebas (xUnit + Testcontainers, Vitest)
 - [ ] CI con GitHub Actions y despliegue con demo en vivo

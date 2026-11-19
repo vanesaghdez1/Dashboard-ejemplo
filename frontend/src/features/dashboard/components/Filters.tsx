@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { Branch } from '../../../types/api'
 
 export type RangePreset = '30d' | '3m' | '6m' | '12m' | 'all'
@@ -18,10 +19,12 @@ interface FiltersProps {
   branches: Branch[]
   /** Si viene, el usuario está limitado a esta sucursal (Gerente): se muestra fija, sin selector. */
   lockedBranchName?: string | null
+  /** Botones extra al final de la barra (p. ej. Exportar). */
+  actions?: ReactNode
 }
 
 /** Barra de filtros en una sola fila, arriba de las gráficas. */
-export function Filters({ range, onRangeChange, branchId, onBranchChange, branches, lockedBranchName }: FiltersProps) {
+export function Filters({ range, onRangeChange, branchId, onBranchChange, branches, lockedBranchName, actions }: FiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="border-line bg-surface flex rounded-lg border p-0.5" role="group" aria-label="Periodo">
@@ -47,6 +50,7 @@ export function Filters({ range, onRangeChange, branchId, onBranchChange, branch
       ) : (
         <BranchSelect branchId={branchId} onBranchChange={onBranchChange} branches={branches} />
       )}
+      {actions}
     </div>
   )
 }
