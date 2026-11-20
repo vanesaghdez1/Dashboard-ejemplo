@@ -28,13 +28,13 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
       ref={ref}
       onClose={onClose}
       aria-labelledby="dialog-title"
-      className="border-line bg-surface text-ink m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl border p-0 shadow-2xl backdrop:bg-black/50"
+      className="border-line bg-surface text-ink shadow-card m-auto w-[calc(100%-2rem)] max-w-lg rounded-[24px] border p-0 [&[open]]:animate-[pop_.2s_ease-out]"
     >
       {open && (
-        <div className="p-6">
+        <div className="p-6 md:p-8">
           <header className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <h2 id="dialog-title" className="text-lg font-semibold tracking-tight">
+              <h2 id="dialog-title" className="font-serif text-3xl leading-none tracking-tight">
                 {title}
               </h2>
               {description && <p className="text-ink-2 mt-1 text-sm">{description}</p>}
@@ -43,7 +43,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="text-ink-3 hover:bg-surface-2 hover:text-ink rounded-md p-1"
+              className="text-ink-3 hover:bg-surface-2 hover:text-ink rounded-full p-1.5"
             >
               <X size={18} aria-hidden />
             </button>

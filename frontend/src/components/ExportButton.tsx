@@ -27,9 +27,9 @@ export function ExportButton({ path, params, label = 'Exportar Excel' }: { path:
         type="button"
         onClick={() => void handleClick()}
         disabled={busy}
-        className="border-line bg-surface text-ink hover:bg-surface-2 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm disabled:opacity-60"
+        className="bg-ink text-bg flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85 disabled:opacity-60"
       >
-        <Download size={16} aria-hidden />
+        <Download size={15} aria-hidden />
         {busy ? 'Exportando…' : label}
       </button>
       {error && (

@@ -20,9 +20,7 @@ public class DashboardService(IAppDbContext db, ICurrentUser currentUser)
         var sales = ApplyFilter(db.Sales.AsNoTracking(), filter);
         var items = sales.SelectMany(s => s.Items);
 
-        var revenue = await sales.SumAsync(s => (decimal?)s.Total, ct) ?? 0;
-        var orders = await sales.CountAsync(ct);
-        var grossMargin = await items.SumAsync(i => (decimal?)(i.Quantity * (i.UnitPrice - i.UnitCost)), ct) ?? 0;
+        var totals = await GetTotalsAsync(sales, ct);
         var lowStock = await db.Products.CountAsync(p => p.Stock <= p.MinStock, ct);
 
         var byMonth = await sales
@@ -49,15 +47,70 @@ public class DashboardService(IAppDbContext db, ICurrentUser currentUser)
             .Select(g => new BranchSalesDto(g.Key.BranchId, g.Key.Name, g.Sum(s => s.Total), g.Count()))
             .ToListAsync(ct);
 
+        // Agrupar por año/mes/día (se traduce a GROUP BY en SQL); el DateOnly se arma ya en memoria.
+        var byDay = (await sales
+                .GroupBy(s => new { s.Date.Year, s.Date.Month, s.Date.Day })
+                .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Day, Revenue = g.Sum(s => s.Total), Orders = g.Count() })
+                .ToListAsync(ct))
+            .Select(d => new DailySalesDto(new DateOnly(d.Year, d.Month, d.Day), d.Revenue, d.Orders))
+            .OrderBy(d => d.Date)
+            .ToList();
+
         var kpis = new KpisDto(
-            Revenue: revenue,
-            Orders: orders,
-            AverageTicket: orders == 0 ? 0 : Math.Round(revenue / orders, 2),
-            GrossMargin: grossMargin,
+            Revenue: totals.Revenue,
+            Orders: totals.Orders,
+            AverageTicket: AverageTicket(totals),
+            GrossMargin: totals.GrossMargin,
             LowStockProducts: lowStock);
 
-        return new DashboardSummaryDto(kpis, byMonth, topProducts, byBranch);
+        var previous = await GetPreviousPeriodAsync(filter, ct);
+
+        return new DashboardSummaryDto(kpis, byMonth, topProducts, byBranch, byDay, previous);
     }
+
+    /// <summary>
+    /// Mismos totales para el periodo anterior de igual duración. Así el frontend puede
+    /// decir "+12 % vs periodo anterior" sin pedir otra llamada.
+    /// </summary>
+    private async Task<PeriodComparisonDto?> GetPreviousPeriodAsync(DashboardFilter filter, CancellationToken ct)
+    {
+        if (filter.From is not { } from || filter.To is not { } to || to < from)
+            return null;
+
+        var days = to.DayNumber - from.DayNumber + 1;
+        var previousTo = from.AddDays(-1);
+        var previousFrom = previousTo.AddDays(-(days - 1));
+
+        // Solo comparamos si hay historial que cubra TODO el periodo anterior;
+        // comparar contra un periodo a medias daría variaciones engañosas (+2,000 %).
+        var scope = ApplyFilter(db.Sales.AsNoTracking(), filter with { From = null, To = null });
+        var firstSale = await scope.MinAsync(s => (DateTime?)s.Date, ct);
+        if (firstSale is null || DateOnly.FromDateTime(firstSale.Value) > previousFrom)
+            return null;
+
+        var previousSales = ApplyFilter(db.Sales.AsNoTracking(), filter with { From = previousFrom, To = previousTo });
+        var totals = await GetTotalsAsync(previousSales, ct);
+
+        // Sin ventas en el periodo anterior no hay contra qué comparar
+        if (totals.Orders == 0)
+            return null;
+
+        return new PeriodComparisonDto(previousFrom, previousTo, totals.Revenue, totals.Orders, AverageTicket(totals), totals.GrossMargin);
+    }
+
+    private static async Task<Totals> GetTotalsAsync(IQueryable<Sale> sales, CancellationToken ct)
+    {
+        var revenue = await sales.SumAsync(s => (decimal?)s.Total, ct) ?? 0;
+        var orders = await sales.CountAsync(ct);
+        var grossMargin = await sales
+            .SelectMany(s => s.Items)
+            .SumAsync(i => (decimal?)(i.Quantity * (i.UnitPrice - i.UnitCost)), ct) ?? 0;
+        return new Totals(revenue, orders, grossMargin);
+    }
+
+    private static decimal AverageTicket(Totals t) => t.Orders == 0 ? 0 : Math.Round(t.Revenue / t.Orders, 2);
+
+    private sealed record Totals(decimal Revenue, int Orders, decimal GrossMargin);
 
     private static IQueryable<Sale> ApplyFilter(IQueryable<Sale> query, DashboardFilter filter)
     {

@@ -13,16 +13,19 @@ Requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [
 
 ## Funcionalidades
 
-- **Dashboard**: KPIs (ingresos, ventas, ticket promedio, margen, stock bajo), ingresos por mes, top productos y ventas por sucursal; filtros por periodo y sucursal; cada gráfica con vista de tabla.
+- **Resumen ejecutivo en lenguaje natural**: el dashboard redacta lo importante ("las 4 sucursales facturaron $8.5 M, +13.7 % frente al periodo anterior…").
+- **Dashboard**: KPIs con **comparación contra el periodo anterior** y mini tendencias, ingresos por mes con el pico anotado, **mapa de calor de ritmo diario** (qué días se vende más), ranking de productos y participación por sucursal; filtros por periodo y sucursal; cada gráfica con vista de tabla.
+- **Paleta de comandos (Ctrl/⌘ + K)**: navegar, cambiar tema o buscar un producto desde cualquier pantalla.
 - **Productos**: búsqueda, paginación y estado de inventario; **alta, edición y baja** (solo Admin) con validación en navegador y servidor.
 - **Exportar a Excel**: reporte del dashboard (4 hojas) y catálogo de productos, respetando los permisos del usuario.
 - **Login con roles**: Admin, Gerente (limitado a su sucursal) y Vendedor (sin cifras financieras).
-- Modo claro/oscuro, diseño responsive, accesible (teclado, lectores de pantalla).
+- Identidad visual propia (estilo editorial: tipografía serif + mono, rosa mexicano como único color de datos), modo claro/oscuro, responsive, animaciones que respetan "reducir movimiento", accesible (teclado, lectores de pantalla).
 
 ## Guion de demo (3 minutos)
 
 1. **Login como Administrador** → dashboard completo. Cambia el periodo (3 / 6 / 12 meses) y la sucursal: todo se recalcula.
-2. Pasa el mouse por la gráfica (tooltip) y alterna **gráfica / tabla**. Activa el **modo oscuro**.
+2. Lee el **resumen en texto** de arriba, pasa el mouse por el **mapa de calor** (fines de semana más intensos) y alterna **gráfica / tabla**. Activa el **modo oscuro**.
+   Presiona **Ctrl + K**, escribe "silla" y Enter: te lleva al producto.
 3. **Exportar Excel** → abre el archivo: 4 hojas con formato.
 4. **Productos** → busca "silla", crea un producto con un error a propósito (precio menor al costo) para mostrar la validación; corrígelo, edítalo y elimínalo.
 5. Intenta eliminar un producto con ventas → el sistema lo impide y explica por qué (integridad de datos).

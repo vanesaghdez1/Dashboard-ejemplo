@@ -1,42 +1,84 @@
 @import 'tailwindcss';
 
+/* Tipografías empaquetadas con la app (funcionan sin internet en la demo):
+   - Instrument Serif: cifras protagonistas y titulares (tono editorial)
+   - Geist: interfaz
+   - Geist Mono: etiquetas, fechas y datos técnicos */
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+
 /* Modo oscuro controlado por el atributo data-theme en <html> (ver lib/theme.ts). */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* ---------- Tokens de diseño (modo claro) ---------- */
+/* ---------- Tokens de diseño · modo claro: "papel y tinta" ---------- */
 :root {
   color-scheme: light;
-  --bg: #f5f5f3;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
-  --border: #e3e2dd;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #7a7974;
-  --accent: #2a78d6; /* serie 1: azul */
-  --accent-soft: #cde2fb;
-  --grid: #e8e7e3;
-  --status-good: #0ca30c;
-  --status-warning: #b77d00;
-  --status-critical: #d03b3b;
+  --bg: #f3efe7; /* papel */
+  --surface: #fbf9f4;
+  --surface-2: #ece7dc;
+  --border: #ddd6c8;
+  --text-primary: #1b1712; /* tinta */
+  --text-secondary: #57504a;
+  --text-muted: #7d7469;
+  --accent: #c8006a; /* rosa mexicano: único color de datos */
+  --accent-soft: #f7d6e6;
+  --on-accent: #ffffff;
+  --grid: #e4ddd0;
+  --status-good: #13803d;
+  --status-warning: #a86b00;
+  --status-critical: #c2352f;
+  --shadow: 0 1px 0 rgb(27 23 18 / 0.04), 0 12px 32px -16px rgb(27 23 18 / 0.18);
 }
 
 /* ---------- Modo oscuro: tonos propios, no una inversión automática ---------- */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #121211;
-  --surface: #1a1a19;
-  --surface-2: #242422;
-  --border: #33332f;
-  --text-primary: #f0efec;
-  --text-secondary: #c3c2b7;
-  --text-muted: #8f8e86;
-  --accent: #3987e5;
-  --accent-soft: #184f95;
-  --grid: #2c2c29;
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-critical: #e66767;
+  --bg: #100f0d;
+  --surface: #181714;
+  --surface-2: #23211d;
+  --border: #33302a;
+  --text-primary: #f2ede4;
+  --text-secondary: #c4bdb1;
+  --text-muted: #91897d;
+  --accent: #f5479a;
+  --accent-soft: #4a1830;
+  --on-accent: #1b0a12;
+  --grid: #2b2924;
+  --status-good: #3ccf6e;
+  --status-warning: #f2b33d;
+  --status-critical: #ff6b61;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+}
+
+/* Panel "tinta": bloque invertido (oscuro también en modo claro) para la cifra principal.
+   Redefine los tokens dentro del bloque, así las gráficas hijas se adaptan solas. */
+.panel-ink {
+  --surface: #1c1915;
+  --surface-2: #2a2620;
+  --border: #3a352d;
+  --text-primary: #f6f1e8;
+  --text-secondary: #cfc7ba;
+  --text-muted: #9b9285;
+  --accent: #f5479a;
+  --grid: #302c25;
+  --status-good: #3ccf6e;
+  --status-critical: #ff6b61;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+:root[data-theme='dark'] .panel-ink {
+  --surface: #211e1a;
+  --surface-2: #2d2924;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(245 71 154 / 0.1), transparent 55%),
+    var(--surface);
+}
+:root:not([data-theme='dark']) .panel-ink {
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(245 71 154 / 0.16), transparent 55%),
+    var(--surface);
 }
 
 /* Exponer los tokens como utilidades de Tailwind: bg-surface, text-ink, border-line, etc. */
@@ -50,10 +92,14 @@
   --color-ink-3: var(--text-muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
   --color-good: var(--status-good);
   --color-warning: var(--status-warning);
   --color-critical: var(--status-critical);
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', monospace;
+  --shadow-card: var(--shadow);
 }
 
 html,
@@ -70,7 +116,102 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Grano de papel muy sutil sobre todo el fondo (SVG inline, sin peticiones extra) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] body::before {
+  mix-blend-mode: screen;
+  opacity: 0.18;
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Números tabulares: las cifras se alinean en tablas y KPIs */
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Etiqueta editorial: mayúsculas, monoespaciada y espaciada (utilidad de Tailwind: admite variantes) */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- Movimiento ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.grow-x {
+  transform-origin: left;
+  animation: grow-x 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* <dialog> nativo: fondo con desenfoque */
+dialog::backdrop {
+  background: rgb(16 15 13 / 0.45);
+  backdrop-filter: blur(3px);
 }

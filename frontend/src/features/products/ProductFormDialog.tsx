@@ -127,13 +127,13 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
       </div>
 
       <footer className="mt-2 flex justify-end gap-2">
-        <button type="button" onClick={onClose} className="border-line text-ink hover:bg-surface-2 rounded-lg border px-4 py-2 text-sm">
+        <button type="button" onClick={onClose} className="border-line text-ink hover:bg-surface-2 rounded-full border px-5 py-2 text-sm">
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-accent rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className="bg-accent text-on-accent rounded-full px-5 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
           {isSubmitting ? 'Guardando…' : editId ? 'Guardar cambios' : 'Crear producto'}
         </button>
@@ -142,7 +142,7 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
   )
 }
 
-const inputClass = 'border-line bg-bg text-ink w-full rounded-lg border px-3 py-2 text-sm aria-[invalid=true]:border-critical'
+const inputClass = 'border-line bg-bg text-ink w-full rounded-xl border px-3 py-2.5 text-sm focus:border-accent outline-none aria-[invalid=true]:border-critical'
 
 /** Etiqueta + input + mensaje de error, conectados para lectores de pantalla. */
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
