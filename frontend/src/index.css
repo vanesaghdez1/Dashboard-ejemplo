@@ -12,73 +12,75 @@
 /* Modo oscuro controlado por el atributo data-theme en <html> (ver lib/theme.ts). */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* ---------- Tokens de diseño · modo claro: "papel y tinta" ---------- */
+/* ---------- Tokens de diseño · modo claro ----------
+   Público: dueños y directores de PyMEs (decisiones de dinero). Psicología del color:
+   - Azul marino (estructura y tinta): confianza, estabilidad, seriedad financiera.
+   - Azul cobalto (único color de datos): claridad; guiño a la talavera poblana.
+   - Dorado (solo marca, nunca datos): valor y prosperidad.
+   - Verde / ámbar / rojo quedan reservados para estados (subió, atención, bajó). */
 :root {
   color-scheme: light;
-  --bg: #f3efe7; /* papel */
-  --surface: #fbf9f4;
-  --surface-2: #ece7dc;
-  --border: #ddd6c8;
-  --text-primary: #1b1712; /* tinta */
-  --text-secondary: #57504a;
-  --text-muted: #7d7469;
-  --accent: #c8006a; /* rosa mexicano: único color de datos */
-  --accent-soft: #f7d6e6;
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #e9ecf1;
+  --border: #dbe0e7;
+  --text-primary: #0e1a2e; /* tinta azul marino */
+  --text-secondary: #475569;
+  --text-muted: #5b6678;
+  --accent: #1f4fd1; /* azul cobalto */
+  --accent-soft: #dbe5fb;
   --on-accent: #ffffff;
-  --grid: #e4ddd0;
-  --status-good: #13803d;
+  --gold: #a16207;
+  --grid: #e6e9ee;
+  --status-good: #15803d;
   --status-warning: #a86b00;
   --status-critical: #c2352f;
-  --shadow: 0 1px 0 rgb(27 23 18 / 0.04), 0 12px 32px -16px rgb(27 23 18 / 0.18);
+  --shadow: 0 1px 0 rgb(14 26 46 / 0.04), 0 12px 32px -16px rgb(14 26 46 / 0.2);
 }
 
 /* ---------- Modo oscuro: tonos propios, no una inversión automática ---------- */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #100f0d;
-  --surface: #181714;
-  --surface-2: #23211d;
-  --border: #33302a;
-  --text-primary: #f2ede4;
-  --text-secondary: #c4bdb1;
-  --text-muted: #91897d;
-  --accent: #f5479a;
-  --accent-soft: #4a1830;
-  --on-accent: #1b0a12;
-  --grid: #2b2924;
+  --bg: #0a0f1a;
+  --surface: #101826;
+  --surface-2: #192233;
+  --border: #263044;
+  --text-primary: #e8edf5;
+  --text-secondary: #b3bdcc;
+  --text-muted: #8a96a8;
+  --accent: #5a8cf5;
+  --accent-soft: #1a2c55;
+  --on-accent: #0a0f1a;
+  --gold: #e2b04a;
+  --grid: #1e2738;
   --status-good: #3ccf6e;
   --status-warning: #f2b33d;
   --status-critical: #ff6b61;
   --shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 16px 40px -20px rgb(0 0 0 / 0.7);
 }
 
-/* Panel "tinta": bloque invertido (oscuro también en modo claro) para la cifra principal.
+/* Panel "marino": bloque protagonista (oscuro también en modo claro).
    Redefine los tokens dentro del bloque, así las gráficas hijas se adaptan solas. */
 .panel-ink {
-  --surface: #1c1915;
-  --surface-2: #2a2620;
-  --border: #3a352d;
-  --text-primary: #f6f1e8;
-  --text-secondary: #cfc7ba;
-  --text-muted: #9b9285;
-  --accent: #f5479a;
-  --grid: #302c25;
-  --status-good: #3ccf6e;
-  --status-critical: #ff6b61;
-  background: var(--surface);
+  --surface: #0f2244;
+  --surface-2: #1a3159;
+  --border: #2a4270;
+  --text-primary: #f2f5fa;
+  --text-secondary: #c3cde0;
+  --text-muted: #95a3bf;
+  --accent: #5a8cf5;
+  --gold: #e2b04a;
+  --grid: #213a66;
+  --status-good: #4ade80;
+  --status-critical: #ff7a70;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(90 140 245 / 0.18), transparent 55%),
+    var(--surface);
   color: var(--text-primary);
 }
 :root[data-theme='dark'] .panel-ink {
-  --surface: #211e1a;
-  --surface-2: #2d2924;
-  background:
-    radial-gradient(120% 140% at 100% 0%, rgb(245 71 154 / 0.1), transparent 55%),
-    var(--surface);
-}
-:root:not([data-theme='dark']) .panel-ink {
-  background:
-    radial-gradient(120% 140% at 100% 0%, rgb(245 71 154 / 0.16), transparent 55%),
-    var(--surface);
+  --surface: #0f1d38;
+  --surface-2: #182a4d;
 }
 
 /* Exponer los tokens como utilidades de Tailwind: bg-surface, text-ink, border-line, etc. */
@@ -92,6 +94,7 @@
   --color-ink-3: var(--text-muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
   --color-on-accent: var(--on-accent);
   --color-good: var(--status-good);
   --color-warning: var(--status-warning);
@@ -125,7 +128,7 @@ body::before {
   z-index: 0;
   opacity: 0.35;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.08 0 0 0 0 0.14 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 :root[data-theme='dark'] body::before {
   mix-blend-mode: screen;
@@ -212,6 +215,6 @@ body::before {
 
 /* <dialog> nativo: fondo con desenfoque */
 dialog::backdrop {
-  background: rgb(16 15 13 / 0.45);
+  background: rgb(10 15 26 / 0.5);
   backdrop-filter: blur(3px);
 }

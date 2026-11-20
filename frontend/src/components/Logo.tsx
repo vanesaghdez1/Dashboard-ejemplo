@@ -8,7 +8,7 @@ export function Logo({ size = 'md' }: { size?: 'md' | 'lg' }) {
           <path
             d="M3 17 L9 11 L13 14 L21 5"
             fill="none"
-            stroke="var(--accent)"
+            stroke="var(--gold)"
             strokeWidth="2.6"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -18,7 +18,7 @@ export function Logo({ size = 'md' }: { size?: 'md' | 'lg' }) {
       </span>
       <span className={`text-ink hidden leading-none sm:inline ${size === 'lg' ? 'text-3xl' : 'text-[22px]'}`}>
         <span className="font-serif">Ventas</span>
-        <span className="font-serif text-accent italic"> mx</span>
+        <span className="font-serif text-gold italic"> mx</span>
       </span>
     </span>
   )
