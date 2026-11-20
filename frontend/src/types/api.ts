@@ -30,11 +30,29 @@ export interface BranchSales {
   orders: number
 }
 
+export interface DailySales {
+  date: string // yyyy-mm-dd
+  revenue: number
+  orders: number
+}
+
+/** Totales del periodo anterior de igual duración (null si no aplica, p. ej. "Todo"). */
+export interface PeriodComparison {
+  from: string
+  to: string
+  revenue: number
+  orders: number
+  averageTicket: number
+  grossMargin: number
+}
+
 export interface DashboardSummary {
   kpis: Kpis
   salesByMonth: MonthlySales[]
   topProducts: TopProduct[]
   salesByBranch: BranchSales[]
+  salesByDay: DailySales[]
+  previous: PeriodComparison | null
 }
 
 export interface DashboardFilter {

@@ -1,54 +1,59 @@
-import { useState, type ReactNode } from 'react'
-import { BarChart3, Table2 } from 'lucide-react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 
 interface ChartCardProps {
+  /** Número de sección estilo editorial ("02"). */
+  index?: string
   title: string
-  subtitle?: string
+  subtitle?: ReactNode
   chart: ReactNode
   table: ReactNode
   className?: string
+  style?: CSSProperties
 }
 
 /**
- * Contenedor de gráfica con alternancia "gráfica / tabla".
+ * Sección con gráfica y alternancia "gráfica / tabla".
  * La vista de tabla da acceso a los valores exactos (accesibilidad y lectores de pantalla).
  */
-export function ChartCard({ title, subtitle, chart, table, className = '' }: ChartCardProps) {
+export function ChartCard({ index, title, subtitle, chart, table, className = '', style }: ChartCardProps) {
   const [view, setView] = useState<'chart' | 'table'>('chart')
 
   return (
-    <section className={`border-line bg-surface rounded-xl border p-4 ${className}`}>
-      <header className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-ink text-sm font-semibold">{title}</h2>
-          {subtitle && <p className="text-ink-3 text-xs">{subtitle}</p>}
+    <section
+      className={`border-line bg-surface shadow-card rise rounded-[20px] border p-5 md:p-6 ${className}`}
+      style={style}
+    >
+      <header className="mb-5 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          {index && <p className="eyebrow mb-1">{index}</p>}
+          <h2 className="text-ink font-serif text-[28px] leading-none tracking-tight">{title}</h2>
+          {subtitle && <p className="text-ink-3 mt-2 text-sm">{subtitle}</p>}
         </div>
-        <div className="border-line flex rounded-md border p-0.5" role="group" aria-label="Vista">
-          <ViewButton active={view === 'chart'} onClick={() => setView('chart')} label="Ver gráfica">
-            <BarChart3 size={14} aria-hidden />
-          </ViewButton>
-          <ViewButton active={view === 'table'} onClick={() => setView('table')} label="Ver tabla">
-            <Table2 size={14} aria-hidden />
-          </ViewButton>
-        </div>
+        <ViewToggle view={view} onChange={setView} />
       </header>
-      {view === 'chart' ? chart : <div className="max-h-72 overflow-auto">{table}</div>}
+      {view === 'chart' ? chart : <div className="max-h-80 overflow-auto">{table}</div>}
     </section>
   )
 }
 
-function ViewButton(props: { active: boolean; onClick: () => void; label: string; children: ReactNode }) {
+/** Interruptor "Gráfica | Tabla" en texto (más claro que dos íconos). */
+export function ViewToggle({ view, onChange }: { view: 'chart' | 'table'; onChange: (v: 'chart' | 'table') => void }) {
   return (
-    <button
-      type="button"
-      onClick={props.onClick}
-      aria-pressed={props.active}
-      title={props.label}
-      aria-label={props.label}
-      className={`rounded px-2 py-1 ${props.active ? 'bg-surface-2 text-ink' : 'text-ink-3 hover:text-ink'}`}
-    >
-      {props.children}
-    </button>
+    <div className="bg-surface-2 flex shrink-0 rounded-full p-0.5 font-mono text-[11px]" role="group" aria-label="Vista">
+      {(['chart', 'table'] as const).map((v) => (
+        <button
+          key={v}
+          type="button"
+          aria-pressed={view === v}
+          onClick={() => onChange(v)}
+          className={`rounded-full px-3 py-1 tracking-wide uppercase transition-colors ${
+            view === v ? 'bg-surface text-ink shadow-sm' : 'text-ink-3 hover:text-ink'
+          }`}
+        >
+          {v === 'chart' ? 'Gráfica' : 'Tabla'}
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -57,9 +62,9 @@ export function DataTable({ headers, rows }: { headers: string[]; rows: (string 
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="text-ink-3 border-line border-b text-left text-xs">
+        <tr className="border-line border-b text-left">
           {headers.map((h, i) => (
-            <th key={h} className={`py-2 font-medium ${i > 0 ? 'text-right' : ''}`}>
+            <th key={h} className={`eyebrow py-2.5 font-normal ${i > 0 ? 'text-right' : ''}`}>
               {h}
             </th>
           ))}
@@ -67,9 +72,9 @@ export function DataTable({ headers, rows }: { headers: string[]; rows: (string 
       </thead>
       <tbody>
         {rows.map((row, r) => (
-          <tr key={r} className="border-line border-b last:border-0">
+          <tr key={r} className="border-line border-b border-dashed last:border-0">
             {row.map((cell, i) => (
-              <td key={i} className={`text-ink py-2 ${i > 0 ? 'tabular text-right' : ''}`}>
+              <td key={i} className={`text-ink py-2.5 ${i > 0 ? 'tabular text-right font-mono text-[13px]' : ''}`}>
                 {cell}
               </td>
             ))}

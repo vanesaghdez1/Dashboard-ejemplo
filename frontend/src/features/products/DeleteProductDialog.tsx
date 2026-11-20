@@ -49,7 +49,7 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
       )}
 
       <footer className="mt-6 flex justify-end gap-2">
-        <button type="button" onClick={handleClose} className="border-line text-ink hover:bg-surface-2 rounded-lg border px-4 py-2 text-sm">
+        <button type="button" onClick={handleClose} className="border-line text-ink hover:bg-surface-2 rounded-full border px-5 py-2 text-sm">
           {error ? 'Entendido' : 'Cancelar'}
         </button>
         {!error && (
@@ -57,7 +57,7 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
             type="button"
             onClick={() => void handleDelete()}
             disabled={deleteProduct.isPending}
-            className="bg-critical rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className="bg-critical rounded-full px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
             {deleteProduct.isPending ? 'Eliminando…' : 'Eliminar'}
           </button>

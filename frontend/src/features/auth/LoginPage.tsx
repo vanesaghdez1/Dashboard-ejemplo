@@ -1,15 +1,16 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
-import { AlertCircle, LogIn, Store } from 'lucide-react'
+import { AlertCircle, ArrowRight } from 'lucide-react'
 import { homePathFor, ROLE_LABELS, useAuth } from './auth-context'
 import type { UserRole } from '../../types/api'
+import { Logo } from '../../components/Logo'
 
 // Cuentas públicas de demostración (se crean en DataSeeder.cs).
 const DEMO_PASSWORD = 'Demo123!'
-const DEMO_ACCOUNTS: { email: string; role: UserRole; description: string }[] = [
-  { email: 'admin@ventasmx.demo', role: 'Admin', description: 'Todo: todas las sucursales' },
-  { email: 'gerente@ventasmx.demo', role: 'Manager', description: 'Dashboard de Monterrey' },
-  { email: 'vendedor@ventasmx.demo', role: 'Seller', description: 'Solo productos' },
+const DEMO_ACCOUNTS: { email: string; role: UserRole; initials: string; description: string }[] = [
+  { email: 'admin@ventasmx.demo', role: 'Admin', initials: 'AA', description: 'Todas las sucursales y catálogo' },
+  { email: 'gerente@ventasmx.demo', role: 'Manager', initials: 'GG', description: 'Solo Monterrey' },
+  { email: 'vendedor@ventasmx.demo', role: 'Seller', initials: 'VV', description: 'Catálogo, sin finanzas' },
 ]
 
 export function LoginPage() {
@@ -45,84 +46,169 @@ export function LoginPage() {
   }
 
   return (
-    <div className="bg-bg flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex items-center justify-center gap-2">
-          <span className="bg-accent grid size-9 place-items-center rounded-lg text-white">
-            <Store size={20} aria-hidden />
-          </span>
-          <span className="text-ink text-lg font-semibold tracking-tight">Ventas MX</span>
+    <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
+      {/* Panel de marca */}
+      <aside className="panel-ink relative flex flex-col justify-between gap-10 overflow-hidden p-8 md:p-12">
+        <Logo size="lg" />
+
+        <div className="relative z-10 max-w-xl">
+          <p className="eyebrow rise mb-5">Plataforma de ventas e inventario</p>
+          <h2 className="rise text-ink font-serif text-5xl leading-[0.95] tracking-tight md:text-7xl" style={{ animationDelay: '80ms' }}>
+            Cada peso, cada sucursal, <em className="text-accent">en una sola mirada.</em>
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="border-line bg-surface flex flex-col gap-4 rounded-xl border p-6" noValidate>
-          <div>
-            <h1 className="text-ink text-xl font-semibold tracking-tight">Iniciar sesión</h1>
-            <p className="text-ink-2 text-sm">Accede al panel de ventas</p>
-          </div>
+        <DecorativeRhythm />
 
-          {error && (
-            <div role="alert" className="border-critical/40 text-ink flex items-center gap-2 rounded-lg border p-3 text-sm">
-              <AlertCircle size={16} className="text-critical shrink-0" aria-hidden />
-              {error}
+        <ul className="text-ink-3 relative z-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] tracking-wider uppercase">
+          <li>.NET 10</li>
+          <li>React 19</li>
+          <li>PostgreSQL</li>
+          <li>JWT + roles</li>
+          <li>Excel</li>
+        </ul>
+      </aside>
+
+      {/* Formulario */}
+      <main className="flex items-center justify-center px-6 py-12 md:px-12">
+        <div className="w-full max-w-md">
+          <p className="eyebrow">Acceso</p>
+          <h1 className="text-ink mt-2 font-serif text-5xl tracking-tight">Inicia sesión</h1>
+
+          <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6" noValidate>
+            {error && (
+              <div role="alert" className="border-critical/40 text-ink flex items-center gap-2 rounded-xl border p-3 text-sm">
+                <AlertCircle size={16} className="text-critical shrink-0" aria-hidden />
+                {error}
+              </div>
+            )}
+
+            <UnderlineField label="Correo">
+              <input
+                type="email"
+                autoComplete="username"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@empresa.mx"
+                className="text-ink placeholder:text-ink-3 w-full bg-transparent py-2 text-lg outline-none"
+              />
+            </UnderlineField>
+
+            <UnderlineField label="Contraseña">
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="text-ink placeholder:text-ink-3 w-full bg-transparent py-2 text-lg outline-none"
+              />
+            </UnderlineField>
+
+            <button
+              type="submit"
+              disabled={submitting || !email || !password}
+              className="group bg-ink text-bg flex items-center justify-between rounded-full py-3 pr-3 pl-6 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            >
+              {submitting ? 'Entrando…' : 'Entrar'}
+              <span className="bg-accent text-on-accent grid size-8 place-items-center rounded-full transition-transform group-hover:translate-x-0.5">
+                <ArrowRight size={16} aria-hidden />
+              </span>
+            </button>
+          </form>
+
+          <section className="mt-12" aria-labelledby="demo-heading">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 id="demo-heading" className="text-ink font-serif text-2xl">
+                ¿Vienes a ver la demo?
+              </h2>
+              <span className="text-ink-3 font-mono text-[11px]">
+                clave <code className="text-ink-2">{DEMO_PASSWORD}</code>
+              </span>
             </div>
-          )}
+            <p className="text-ink-3 mt-1 text-sm">Entra con un clic como cualquiera de estos perfiles:</p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {DEMO_ACCOUNTS.map((account) => (
+                <button
+                  key={account.email}
+                  type="button"
+                  disabled={submitting}
+                  onClick={() => void signIn(account.email, DEMO_PASSWORD)}
+                  className="group border-line bg-surface hover:border-accent flex flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-colors disabled:opacity-50"
+                >
+                  <span className="bg-surface-2 text-ink group-hover:bg-accent group-hover:text-on-accent grid size-9 place-items-center rounded-full font-mono text-xs font-semibold transition-colors">
+                    {account.initials}
+                  </span>
+                  <span>
+                    <span className="text-ink block text-sm font-medium">{ROLE_LABELS[account.role]}</span>
+                    <span className="text-ink-3 block text-xs leading-snug">{account.description}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  )
+}
 
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-ink-2">Correo</span>
-            <input
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="border-line bg-bg text-ink rounded-lg border px-3 py-2"
+function UnderlineField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="border-line focus-within:border-accent block border-b-2 transition-colors [&_input:focus-visible]:outline-none">
+      <span className="eyebrow">{label}</span>
+      {children}
+    </label>
+  )
+}
+
+/** Decoración: mini mapa de calor que "se enciende" y una curva que se dibuja. Solo visual. */
+function DecorativeRhythm() {
+  const cols = 26
+  // Pseudoaleatorio determinista: siempre el mismo dibujo (sin parpadeos entre renders)
+  const level = (c: number, r: number) => {
+    const weekend = r >= 5 ? 1.5 : 1
+    const trend = 0.4 + (c / cols) * 0.6
+    const noise = Math.abs(Math.sin(c * 12.9898 + r * 78.233) * 43758.5453) % 1
+    return Math.min(1, trend * weekend * (0.45 + noise * 0.6))
+  }
+
+  return (
+    <div className="pointer-events-none relative z-0 -mx-2" aria-hidden>
+      <svg viewBox="0 0 520 120" className="mb-4 w-full overflow-visible">
+        <path
+          d="M0,100 C40,96 60,80 100,84 S170,60 210,66 S280,40 320,48 S400,20 440,26 S500,8 520,6"
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          pathLength={1}
+          strokeDasharray={1}
+          strokeDashoffset={1}
+          style={{ animation: 'draw 2.2s .3s cubic-bezier(.2,.7,.2,1) forwards' }}
+        />
+        <circle cx="520" cy="6" r="5" fill="var(--accent)" className="rise" style={{ animationDelay: '2.3s' }} />
+      </svg>
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+        {Array.from({ length: cols * 7 }).map((_, i) => {
+          const c = Math.floor(i / 7)
+          const r = i % 7
+          const v = level(c, r)
+          return (
+            <span
+              key={i}
+              className="rise aspect-square rounded-[3px]"
+              style={{
+                gridColumn: c + 1,
+                gridRow: r + 1,
+                background: `color-mix(in oklab, var(--accent) ${Math.round(v * 100)}%, var(--surface-2))`,
+                animationDelay: `${300 + c * 45 + r * 20}ms`,
+              }}
             />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-ink-2">Contraseña</span>
-            <input
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border-line bg-bg text-ink rounded-lg border px-3 py-2"
-            />
-          </label>
-
-          <button
-            type="submit"
-            disabled={submitting || !email || !password}
-            className="bg-accent flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
-            <LogIn size={16} aria-hidden />
-            {submitting ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
-
-        <section className="mt-6" aria-labelledby="demo-heading">
-          <h2 id="demo-heading" className="text-ink-3 mb-2 text-center text-xs">
-            Cuentas de demostración · contraseña <code className="text-ink-2">{DEMO_PASSWORD}</code>
-          </h2>
-          <div className="flex flex-col gap-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                disabled={submitting}
-                onClick={() => void signIn(account.email, DEMO_PASSWORD)}
-                className="border-line bg-surface hover:bg-surface-2 flex items-center justify-between rounded-lg border px-3 py-2 text-left text-sm disabled:opacity-50"
-              >
-                <span>
-                  <span className="text-ink block font-medium">{ROLE_LABELS[account.role]}</span>
-                  <span className="text-ink-3 block text-xs">{account.description}</span>
-                </span>
-                <span className="text-ink-3 text-xs">Entrar →</span>
-              </button>
-            ))}
-          </div>
-        </section>
+          )
+        })}
       </div>
     </div>
   )
