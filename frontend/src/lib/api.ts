@@ -83,13 +83,21 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`
 
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    credentials: 'include',
-    signal: options.signal,
-  })
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method,
+      headers,
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      credentials: 'include',
+      signal: options.signal,
+    })
+  } catch (error) {
+    // Cancelaciones (TanStack Query aborta peticiones viejas): se dejan pasar tal cual
+    if (error instanceof DOMException && error.name === 'AbortError') throw error
+    // El navegador solo dice "Failed to fetch": la API está apagada o no hay red
+    throw new ApiError(0, 'No se pudo conectar con el servidor. Revisa que la API esté encendida e inténtalo de nuevo.')
+  }
 
   // Token vencido → renovar y reintentar (excepto en los propios endpoints de auth)
   if (response.status === 401 && canRetry && !path.startsWith('/api/auth/')) {

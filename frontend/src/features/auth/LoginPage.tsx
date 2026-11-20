@@ -47,33 +47,16 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
-      {/* Panel de marca */}
-      <aside className="panel-ink relative flex flex-col justify-between gap-10 overflow-hidden p-8 md:p-12">
+      {/* Panel de marca: solo logo y visual, sin texto de relleno */}
+      <aside className="panel-ink relative flex min-h-[220px] flex-col justify-between gap-10 overflow-hidden p-8 md:p-12">
         <Logo size="lg" />
-
-        <div className="relative z-10 max-w-xl">
-          <p className="eyebrow rise mb-5">Plataforma de ventas e inventario</p>
-          <h2 className="rise text-ink font-serif text-5xl leading-[0.95] tracking-tight md:text-7xl" style={{ animationDelay: '80ms' }}>
-            Cada peso, cada sucursal, <em className="text-accent">en una sola mirada.</em>
-          </h2>
-        </div>
-
         <DecorativeRhythm />
-
-        <ul className="text-ink-3 relative z-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] tracking-wider uppercase">
-          <li>.NET 10</li>
-          <li>React 19</li>
-          <li>PostgreSQL</li>
-          <li>JWT + roles</li>
-          <li>Excel</li>
-        </ul>
       </aside>
 
       {/* Formulario */}
       <main className="flex items-center justify-center px-6 py-12 md:px-12">
         <div className="w-full max-w-md">
-          <p className="eyebrow">Acceso</p>
-          <h1 className="text-ink mt-2 font-serif text-5xl tracking-tight">Inicia sesión</h1>
+          <h1 className="text-ink font-serif text-5xl tracking-tight">Inicia sesión</h1>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6" noValidate>
             {error && (
@@ -119,32 +102,29 @@ export function LoginPage() {
             </button>
           </form>
 
-          <section className="mt-12" aria-labelledby="demo-heading">
+          <section className="mt-10" aria-labelledby="demo-heading">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 id="demo-heading" className="text-ink font-serif text-2xl">
-                ¿Vienes a ver la demo?
+              <h2 id="demo-heading" className="eyebrow">
+                Demo
               </h2>
               <span className="text-ink-3 font-mono text-[11px]">
                 clave <code className="text-ink-2">{DEMO_PASSWORD}</code>
               </span>
             </div>
-            <p className="text-ink-3 mt-1 text-sm">Entra con un clic como cualquiera de estos perfiles:</p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {DEMO_ACCOUNTS.map((account) => (
                 <button
                   key={account.email}
                   type="button"
                   disabled={submitting}
                   onClick={() => void signIn(account.email, DEMO_PASSWORD)}
-                  className="group border-line bg-surface hover:border-accent flex flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-colors disabled:opacity-50"
+                  title={account.description}
+                  className="group border-line bg-surface hover:border-accent flex items-center gap-3 rounded-2xl border p-3 text-left transition-colors disabled:opacity-50"
                 >
-                  <span className="bg-surface-2 text-ink group-hover:bg-accent group-hover:text-on-accent grid size-9 place-items-center rounded-full font-mono text-xs font-semibold transition-colors">
+                  <span className="bg-surface-2 text-ink group-hover:bg-accent group-hover:text-on-accent grid size-9 shrink-0 place-items-center rounded-full font-mono text-xs font-semibold transition-colors">
                     {account.initials}
                   </span>
-                  <span>
-                    <span className="text-ink block text-sm font-medium">{ROLE_LABELS[account.role]}</span>
-                    <span className="text-ink-3 block text-xs leading-snug">{account.description}</span>
-                  </span>
+                  <span className="text-ink text-sm font-medium">{ROLE_LABELS[account.role]}</span>
                 </button>
               ))}
             </div>
@@ -189,7 +169,7 @@ function DecorativeRhythm() {
           strokeDashoffset={1}
           style={{ animation: 'draw 2.2s .3s cubic-bezier(.2,.7,.2,1) forwards' }}
         />
-        <circle cx="520" cy="6" r="5" fill="var(--accent)" className="rise" style={{ animationDelay: '2.3s' }} />
+        <circle cx="520" cy="6" r="5" fill="var(--gold)" className="rise" style={{ animationDelay: '2.3s' }} />
       </svg>
       <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
         {Array.from({ length: cols * 7 }).map((_, i) => {

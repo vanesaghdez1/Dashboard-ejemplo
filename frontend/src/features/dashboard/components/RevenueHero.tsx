@@ -50,12 +50,15 @@ export function RevenueHero({ data, periodLabel, isAllTime, className = '', styl
           <div className="text-ink-2 mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
             <DeltaBadge change={change} />
             {previous ? (
-              <span className="font-mono text-xs">
-                vs {formatCompactCurrency(previous.revenue)} del {formatDayMonth(previous.from)} al {formatDayMonth(previous.to)}
+              <span
+                className="font-mono text-xs"
+                title={`Del ${formatDayMonth(previous.from)} al ${formatDayMonth(previous.to)}`}
+              >
+                vs {formatCompactCurrency(previous.revenue)}
               </span>
             ) : (
               <span className="text-ink-3 font-mono text-xs">
-                {isAllTime ? 'Histórico completo' : 'Sin historial suficiente para comparar con el periodo anterior'}
+                {isAllTime ? 'Histórico completo' : 'Sin periodo previo'}
               </span>
             )}
           </div>

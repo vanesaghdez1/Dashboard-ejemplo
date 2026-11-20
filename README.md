@@ -13,13 +13,13 @@ Requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [
 
 ## Funcionalidades
 
-- **Resumen ejecutivo en lenguaje natural**: el dashboard redacta lo importante ("las 4 sucursales facturaron $8.5 M, +13.7 % frente al periodo anterior…").
+- **Visual primero, poco texto**: cifra protagonista, comparación con flechas y "mejor día de la semana" como dato, no como párrafo.
 - **Dashboard**: KPIs con **comparación contra el periodo anterior** y mini tendencias, ingresos por mes con el pico anotado, **mapa de calor de ritmo diario** (qué días se vende más), ranking de productos y participación por sucursal; filtros por periodo y sucursal; cada gráfica con vista de tabla.
 - **Paleta de comandos (Ctrl/⌘ + K)**: navegar, cambiar tema o buscar un producto desde cualquier pantalla.
 - **Productos**: búsqueda, paginación y estado de inventario; **alta, edición y baja** (solo Admin) con validación en navegador y servidor.
 - **Exportar a Excel**: reporte del dashboard (4 hojas) y catálogo de productos, respetando los permisos del usuario.
 - **Login con roles**: Admin, Gerente (limitado a su sucursal) y Vendedor (sin cifras financieras).
-- Identidad visual propia (estilo editorial: tipografía serif + mono, rosa mexicano como único color de datos), modo claro/oscuro, responsive, animaciones que respetan "reducir movimiento", accesible (teclado, lectores de pantalla).
+- Identidad visual propia (estilo editorial: tipografía serif + mono, paleta azul marino + cobalto elegida por psicología del color para un público de dueños y directores: confianza y estabilidad; dorado solo en la marca; verde/ámbar/rojo reservados para estados), modo claro/oscuro, responsive, animaciones que respetan "reducir movimiento", accesible (teclado, lectores de pantalla).
 
 ## Guion de demo (3 minutos)
 

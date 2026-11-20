@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
-import { AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { AlertTriangle, ArrowRight, ArrowUpRight, CheckCircle2 } from 'lucide-react'
 import { useBranches, useDashboardSummary } from './queries'
 import { Filters, type RangePreset } from './components/Filters'
 import { KpiTile, Sparkline } from './components/KpiCard'
@@ -8,13 +8,12 @@ import { ChartCard, DataTable } from './components/ChartCard'
 import { RevenueHero } from './components/RevenueHero'
 import { Leaderboard } from './components/Leaderboard'
 import { DailyRhythm } from './components/DailyRhythm'
-import { WEEKDAY_NAMES, WEEKDAY_PLURAL, weekdayStats } from './rhythm'
+import { WEEKDAY_NAMES, weekdayStats } from './rhythm'
 import {
   formatCompactCurrency,
   formatCurrency,
   formatNumber,
   formatPercent,
-  formatSignedPercent,
   formatToday,
   greeting,
   relativeChange,
@@ -70,24 +69,16 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Encabezado editorial */}
-      <header className="rise flex flex-col gap-6">
-        <p className="eyebrow">
-          {formatToday()} · Resumen ejecutivo · {branchName ?? 'Todas las sucursales'}
-        </p>
+      {/* Encabezado compacto: saludo a la izquierda, filtros a la derecha */}
+      <header className="rise flex flex-col gap-5">
         <div>
-          <div className="max-w-4xl">
-            <h1 className="text-ink font-serif text-5xl leading-[0.95] tracking-tight md:text-7xl">
-              {greeting()}, <em className="text-accent">{firstName}</em>.
-            </h1>
-            {data ? (
-              <Narrative data={data} filter={filter} range={range} branchName={branchName} isManager={isManager} />
-            ) : (
-              <p className="text-ink-3 mt-5 text-lg">Preparando tu resumen…</p>
-            )}
-          </div>
+          <p className="eyebrow">
+            {formatToday()} · {branchName ?? 'Todas las sucursales'}
+          </p>
+          <h1 className="text-ink mt-1 font-serif text-4xl leading-none tracking-tight md:text-5xl">
+            {greeting()}, <em className="text-accent">{firstName}</em>
+          </h1>
         </div>
-        {/* Barra de filtros: una sola fila arriba de las gráficas */}
         <div className="border-line flex flex-wrap items-center justify-between gap-3 border-t pt-5">
           <Filters
             range={range}
@@ -115,9 +106,8 @@ export function DashboardPage() {
           <KpiColumn data={data} />
 
           <ChartCard
-            index="02 · Ritmo diario"
-            title="¿Qué días se vende más?"
-            subtitle={<WeekdayInsight data={data} filter={filter} />}
+            title="Ritmo diario"
+            subtitle={<BestDay data={data} filter={filter} />}
             className="lg:col-span-12"
             style={stagger(6)}
             chart={<DailyRhythm days={data.salesByDay} from={filter.from} to={filter.to} />}
@@ -134,9 +124,7 @@ export function DashboardPage() {
           />
 
           <ChartCard
-            index="03 · Productos"
-            title="Los más vendidos"
-            subtitle="Top 5 por ingresos del periodo"
+            title="Top productos"
             className={isManager ? 'lg:col-span-12' : 'lg:col-span-7'}
             style={stagger(7)}
             chart={
@@ -160,9 +148,7 @@ export function DashboardPage() {
           {/* Comparar sucursales solo tiene sentido si ves más de una (Admin) */}
           {!isManager && (
             <ChartCard
-              index="04 · Sucursales"
-              title="Participación"
-              subtitle="Ingresos y % del total"
+              title="Sucursales"
               className="lg:col-span-5"
               style={stagger(8)}
               chart={
@@ -280,78 +266,25 @@ function MarginRing({ rate }: { rate: number }) {
   )
 }
 
-/** Cifra resaltada dentro del texto narrativo. */
-function Hl({ children }: { children: ReactNode }) {
-  return (
-    <strong className="text-ink decoration-accent font-medium underline decoration-2 underline-offset-[5px]">
-      {children}
-    </strong>
-  )
-}
-
-/**
- * Resumen en lenguaje natural generado a partir de los datos:
- * lo que un director leería primero, sin tener que interpretar gráficas.
- */
-function Narrative(props: {
-  data: DashboardSummary
-  filter: DashboardFilter
-  range: RangePreset
-  branchName?: string | null
-  isManager: boolean
-}) {
-  const { data, filter, range, branchName, isManager } = props
-  const { kpis, previous } = data
-  const change = relativeChange(kpis.revenue, previous?.revenue)
-  const topBranch = data.salesByBranch[0]
-  const topProduct = data.topProducts[0]
-  const { best } = weekdayStats(data.salesByDay, filter.from, filter.to)
-
-  if (kpis.orders === 0)
-    return <p className="text-ink-2 mt-5 text-lg md:text-xl">No hay ventas registradas en {PERIOD_LABELS[range]}.</p>
-
-  const scope = branchName ? branchName : `las ${data.salesByBranch.length} sucursales`
-
-  return (
-    <p className="text-ink-2 mt-5 text-lg leading-relaxed md:text-xl">
-      {range === 'all' ? 'En todo el histórico' : `En los ${PERIOD_LABELS[range]}`}, {scope}{' '}
-      {branchName ? 'facturó' : 'facturaron'} <Hl>{formatCompactCurrency(kpis.revenue)}</Hl> en{' '}
-      <Hl>{formatNumber(kpis.orders)} ventas</Hl>
-      {change !== null && (
-        <>
-          , <Hl>{formatSignedPercent(change)}</Hl> frente al periodo anterior
-        </>
-      )}
-      .{' '}
-      {!isManager && !branchName && topBranch && kpis.revenue > 0 && (
-        <>
-          <Hl>{topBranch.branch}</Hl> aporta el {formatPercent(topBranch.revenue / kpis.revenue)} de los ingresos.{' '}
-        </>
-      )}
-      {topProduct && (
-        <>
-          El producto estrella es <Hl>{topProduct.name}</Hl> y los <Hl>{WEEKDAY_PLURAL[best.weekday]}</Hl> son el mejor
-          día.{' '}
-        </>
-      )}
-      {kpis.lowStockProducts > 0 && (
-        <>
-          Hay <Hl>{kpis.lowStockProducts} productos</Hl> por resurtir.
-        </>
-      )}
-    </p>
-  )
-}
-
-function WeekdayInsight({ data, filter }: { data: DashboardSummary; filter: DashboardFilter }) {
+/** Mejor día de la semana como dato visual (sin frase). */
+function BestDay({ data, filter }: { data: DashboardSummary; filter: DashboardFilter }) {
   const { best, uplift } = weekdayStats(data.salesByDay, filter.from, filter.to)
-  if (!best.avgRevenue) return <>Cada cuadro es un día; más intenso = más ingresos.</>
+  if (!best.avgRevenue) return null
   return (
-    <>
-      Cada cuadro es un día; más intenso = más ingresos. Los <span className="text-ink">{WEEKDAY_PLURAL[best.weekday]}</span>{' '}
-      promedian <span className="text-ink tabular">{formatCurrency(best.avgRevenue)}</span>
-      {uplift > 0.01 && <>, {formatPercent(uplift)} más que un día típico</>}.
-    </>
+    <span className="flex flex-wrap items-center gap-2 font-mono text-xs">
+      <span className="eyebrow">Mejor día</span>
+      <span className="bg-accent-soft text-ink rounded-full px-2.5 py-0.5 font-sans text-sm font-medium">
+        {WEEKDAY_NAMES[best.weekday]}
+      </span>
+      <span className="text-ink tabular">{formatCompactCurrency(best.avgRevenue)}/día</span>
+      {uplift > 0.01 && (
+        <span className="text-good inline-flex items-center gap-0.5">
+          <ArrowUpRight size={14} aria-hidden />
+          {formatPercent(uplift)}
+          <span className="sr-only">más que un día típico</span>
+        </span>
+      )}
+    </span>
   )
 }
 
