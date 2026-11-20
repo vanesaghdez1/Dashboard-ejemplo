@@ -11,6 +11,8 @@ Requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [
 2. Entra con una cuenta demo (botones en la pantalla de login, contraseña `Demo123!`).
 3. Al terminar, doble clic en **`detener-demo.cmd`**.
 
+> Historia del proyecto, decisiones de diseño (incluida la psicología del color) y pendientes: [docs/BITACORA.md](docs/BITACORA.md).
+
 ## Funcionalidades
 
 - **Visual primero, poco texto**: cifra protagonista, comparación con flechas y "mejor día de la semana" como dato, no como párrafo.
@@ -24,7 +26,7 @@ Requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [
 ## Guion de demo (3 minutos)
 
 1. **Login como Administrador** → dashboard completo. Cambia el periodo (3 / 6 / 12 meses) y la sucursal: todo se recalcula.
-2. Lee el **resumen en texto** de arriba, pasa el mouse por el **mapa de calor** (fines de semana más intensos) y alterna **gráfica / tabla**. Activa el **modo oscuro**.
+2. Observa la **cifra protagonista** con su comparación (en 6M), pasa el mouse por el **mapa de calor** (fines de semana más intensos) y alterna **gráfica / tabla**. Activa el **modo oscuro**.
    Presiona **Ctrl + K**, escribe "silla" y Enter: te lleva al producto.
 3. **Exportar Excel** → abre el archivo: 4 hojas con formato.
 4. **Productos** → busca "silla", crea un producto con un error a propósito (precio menor al costo) para mostrar la validación; corrígelo, edítalo y elimínalo.
@@ -152,7 +154,7 @@ docker compose down -v && docker compose up -d
 | POST | `/api/auth/refresh` | Cookie | Renueva el access token |
 | POST | `/api/auth/logout` | Cookie | Cierra sesión |
 | GET | `/api/auth/me` | Autenticado | Usuario actual |
-| GET | `/api/dashboard/summary?from&to&branchId` | Admin, Gerente | KPIs, ventas por mes, top productos, ventas por sucursal |
+| GET | `/api/dashboard/summary?from&to&branchId` | Admin, Gerente | KPIs, ventas por mes y por día, top productos, ventas por sucursal y comparación con el periodo anterior |
 | GET | `/api/dashboard/export?from&to&branchId` | Admin, Gerente | Reporte del dashboard en Excel |
 | GET | `/api/products?search&page&pageSize` | Autenticado | Productos paginados con búsqueda |
 | GET | `/api/products/export?search` | Autenticado | Catálogo en Excel |
