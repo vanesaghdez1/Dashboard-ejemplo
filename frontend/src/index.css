@@ -1,0 +1,220 @@
+@import 'tailwindcss';
+
+/* Tipografías empaquetadas con la app (funcionan sin internet en la demo):
+   - Instrument Serif: cifras protagonistas y titulares (tono editorial)
+   - Geist: interfaz
+   - Geist Mono: etiquetas, fechas y datos técnicos */
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+
+/* Modo oscuro controlado por el atributo data-theme en <html> (ver lib/theme.ts). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------- Tokens de diseño · modo claro ----------
+   Público: dueños y directores de PyMEs (decisiones de dinero). Psicología del color:
+   - Azul marino (estructura y tinta): confianza, estabilidad, seriedad financiera.
+   - Azul cobalto (único color de datos): claridad; guiño a la talavera poblana.
+   - Dorado (solo marca, nunca datos): valor y prosperidad.
+   - Verde / ámbar / rojo quedan reservados para estados (subió, atención, bajó). */
+:root {
+  color-scheme: light;
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #e9ecf1;
+  --border: #dbe0e7;
+  --text-primary: #0e1a2e; /* tinta azul marino */
+  --text-secondary: #475569;
+  --text-muted: #5b6678;
+  --accent: #1f4fd1; /* azul cobalto */
+  --accent-soft: #dbe5fb;
+  --on-accent: #ffffff;
+  --gold: #a16207;
+  --grid: #e6e9ee;
+  --status-good: #15803d;
+  --status-warning: #a86b00;
+  --status-critical: #c2352f;
+  --shadow: 0 1px 0 rgb(14 26 46 / 0.04), 0 12px 32px -16px rgb(14 26 46 / 0.2);
+}
+
+/* ---------- Modo oscuro: tonos propios, no una inversión automática ---------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0a0f1a;
+  --surface: #101826;
+  --surface-2: #192233;
+  --border: #263044;
+  --text-primary: #e8edf5;
+  --text-secondary: #b3bdcc;
+  --text-muted: #8a96a8;
+  --accent: #5a8cf5;
+  --accent-soft: #1a2c55;
+  --on-accent: #0a0f1a;
+  --gold: #e2b04a;
+  --grid: #1e2738;
+  --status-good: #3ccf6e;
+  --status-warning: #f2b33d;
+  --status-critical: #ff6b61;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+}
+
+/* Panel "marino": bloque protagonista (oscuro también en modo claro).
+   Redefine los tokens dentro del bloque, así las gráficas hijas se adaptan solas. */
+.panel-ink {
+  --surface: #0f2244;
+  --surface-2: #1a3159;
+  --border: #2a4270;
+  --text-primary: #f2f5fa;
+  --text-secondary: #c3cde0;
+  --text-muted: #95a3bf;
+  --accent: #5a8cf5;
+  --gold: #e2b04a;
+  --grid: #213a66;
+  --status-good: #4ade80;
+  --status-critical: #ff7a70;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(90 140 245 / 0.18), transparent 55%),
+    var(--surface);
+  color: var(--text-primary);
+}
+:root[data-theme='dark'] .panel-ink {
+  --surface: #0f1d38;
+  --surface-2: #182a4d;
+}
+
+/* Exponer los tokens como utilidades de Tailwind: bg-surface, text-ink, border-line, etc. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-ink: var(--text-primary);
+  --color-ink-2: var(--text-secondary);
+  --color-ink-3: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-on-accent: var(--on-accent);
+  --color-good: var(--status-good);
+  --color-warning: var(--status-warning);
+  --color-critical: var(--status-critical);
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', monospace;
+  --shadow-card: var(--shadow);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grano de papel muy sutil sobre todo el fondo (SVG inline, sin peticiones extra) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.08 0 0 0 0 0.14 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] body::before {
+  mix-blend-mode: screen;
+  opacity: 0.18;
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Números tabulares: las cifras se alinean en tablas y KPIs */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Etiqueta editorial: mayúsculas, monoespaciada y espaciada (utilidad de Tailwind: admite variantes) */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- Movimiento ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.grow-x {
+  transform-origin: left;
+  animation: grow-x 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* <dialog> nativo: fondo con desenfoque */
+dialog::backdrop {
+  background: rgb(10 15 26 / 0.5);
+  backdrop-filter: blur(3px);
+}
