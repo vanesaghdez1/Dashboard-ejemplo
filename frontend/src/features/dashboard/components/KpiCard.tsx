@@ -19,7 +19,7 @@ export function DeltaBadge({ change, compact = false }: { change: number | null;
     >
       <Icon size={14} aria-hidden />
       {formatSignedPercent(change)}
-      <span className="sr-only"> frente al periodo anterior</span>
+      <span className="sr-only"> vs. previous period</span>
     </span>
   )
 }

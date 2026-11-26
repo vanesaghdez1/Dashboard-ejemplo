@@ -11,7 +11,7 @@ public static class BranchEndpoints
         group.MapGet("/", async (BranchService service, CancellationToken ct) =>
                 TypedResults.Ok(await service.GetAllAsync(ct)))
             .WithName("GetBranches")
-            .WithSummary("Catálogo de sucursales");
+            .WithSummary("Branch list");
 
         return app;
     }

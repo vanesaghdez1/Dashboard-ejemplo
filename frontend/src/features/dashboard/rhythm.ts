@@ -4,8 +4,8 @@ import { parseIsoDate } from '../../lib/format'
 // Cálculos del "ritmo diario" (mapa de calor). Funciones puras: fáciles de probar con Vitest.
 
 const DAY_MS = 86_400_000
-export const WEEKDAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-export const WEEKDAY_PLURAL = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados', 'domingos']
+export const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+export const WEEKDAY_PLURAL = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
 
 export interface Cell {
   iso: string

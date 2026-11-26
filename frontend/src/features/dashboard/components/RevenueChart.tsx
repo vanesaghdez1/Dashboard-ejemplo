@@ -1,6 +1,6 @@
 import { Area, AreaChart, CartesianGrid, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { MonthlySales } from '../../../types/api'
-import { formatCompactCurrency, formatCurrency, formatMonth, formatNumber, isCurrentMonth } from '../../../lib/format'
+import { formatCompactCurrency, formatCount, formatCurrency, formatMonth, isCurrentMonth } from '../../../lib/format'
 
 const tick = { fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)' }
 
@@ -45,10 +45,10 @@ export function RevenueChart({ data, height = 280 }: { data: MonthlySales[]; hei
                 <div className="border-line bg-surface rounded-xl border px-3 py-2.5 text-xs shadow-xl">
                   <div className="eyebrow mb-1">
                     {formatMonth(p.year, p.month, true)}
-                    {isCurrentMonth(p.year, p.month) && ' · en curso'}
+                    {isCurrentMonth(p.year, p.month) && ' · in progress'}
                   </div>
                   <div className="text-ink tabular font-serif text-xl leading-tight">{formatCurrency(p.revenue)}</div>
-                  <div className="text-ink-3 tabular font-mono">{formatNumber(p.orders)} ventas</div>
+                  <div className="text-ink-3 tabular font-mono">{formatCount(p.orders, 'order')}</div>
                 </div>
               )
             }}
@@ -71,7 +71,7 @@ export function RevenueChart({ data, height = 280 }: { data: MonthlySales[]; hei
               stroke="var(--accent)"
               strokeWidth={2}
               label={{
-                value: `Pico · ${formatCompactCurrency(peak.revenue)}`,
+                value: `Peak · ${formatCompactCurrency(peak.revenue)}`,
                 position: labelPosition,
                 offset: 12,
                 fill: 'var(--text-secondary)',

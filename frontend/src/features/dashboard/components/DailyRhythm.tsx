@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
 import type { DailySales } from '../../../types/api'
-import { formatCurrency, formatDayFull, formatMonthShort, formatNumber, parseIsoDate, toIsoDate } from '../../../lib/format'
+import { formatCount, formatCurrency, formatDayFull, formatMonthShort, parseIsoDate, toIsoDate } from '../../../lib/format'
 import { buildCells, type Cell } from '../rhythm'
 
-const WEEKDAY_SHORT = ['Lun', '', 'Mié', '', 'Vie', '', 'Dom']
+const WEEKDAY_SHORT = ['Mon', '', 'Wed', '', 'Fri', '', 'Sun']
 
 /** Escala secuencial de un solo tono: superficie → acento (más intenso = más ventas). */
 const LEVELS = [
@@ -38,7 +38,7 @@ export function DailyRhythm({ days, from, to }: { days: DailySales[]; from?: str
     return labels
   }, [cells])
 
-  if (cells.length === 0) return <p className="text-ink-3 py-10 text-center text-sm">Sin ventas en este periodo.</p>
+  if (cells.length === 0) return <p className="text-ink-3 py-10 text-center text-sm">No sales in this period.</p>
 
 
   return (
@@ -77,7 +77,7 @@ export function DailyRhythm({ days, from, to }: { days: DailySales[]; from?: str
             className="grid grid-rows-7 gap-[3px]"
             style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 26px))` }}
             role="img"
-            aria-label="Mapa de calor de ingresos por día. Usa la vista de tabla para ver los valores."
+            aria-label="Heatmap of daily revenue. Switch to the table view to see the values."
           >
             {cells.map((c) => (
               <span
@@ -107,7 +107,7 @@ export function DailyRhythm({ days, from, to }: { days: DailySales[]; from?: str
             >
               <div className="eyebrow mb-0.5">{formatDayFull(hover.cell.iso)}</div>
               <div className="text-ink tabular font-serif text-lg leading-tight">{formatCurrency(hover.cell.revenue)}</div>
-              <div className="text-ink-3 tabular font-mono">{formatNumber(hover.cell.orders)} ventas</div>
+              <div className="text-ink-3 tabular font-mono">{formatCount(hover.cell.orders, 'order')}</div>
             </div>
           )}
         </div>
@@ -115,11 +115,11 @@ export function DailyRhythm({ days, from, to }: { days: DailySales[]; from?: str
 
       {/* Leyenda de la escala */}
       <div className="text-ink-3 mt-4 flex items-center justify-end gap-1.5 font-mono text-[10px] uppercase">
-        <span className="mr-1">Menos</span>
+        <span className="mr-1">Less</span>
         {LEVELS.map((color, i) => (
           <span key={i} className="size-3 rounded-[3px]" style={{ background: color }} />
         ))}
-        <span className="ml-1">Más</span>
+        <span className="ml-1">More</span>
       </div>
     </div>
   )

@@ -41,7 +41,7 @@ export function RevenueHero({ data, periodLabel, isAllTime, className = '', styl
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p id="hero-title" className="eyebrow">
-            Ingresos · {periodLabel}
+            Revenue · {periodLabel}
           </p>
           <p className="text-ink tabular mt-3 font-serif text-[clamp(3rem,7vw,5.5rem)] leading-[0.9] tracking-tight">
             <span className="sr-only">{formatCurrency(revenue)}</span>
@@ -52,13 +52,13 @@ export function RevenueHero({ data, periodLabel, isAllTime, className = '', styl
             {previous ? (
               <span
                 className="font-mono text-xs"
-                title={`Del ${formatDayMonth(previous.from)} al ${formatDayMonth(previous.to)}`}
+                title={`${formatDayMonth(previous.from)} – ${formatDayMonth(previous.to)}`}
               >
                 vs {formatCompactCurrency(previous.revenue)}
               </span>
             ) : (
               <span className="text-ink-3 font-mono text-xs">
-                {isAllTime ? 'Histórico completo' : 'Sin periodo previo'}
+                {isAllTime ? 'Full history' : 'No previous period'}
               </span>
             )}
           </div>
@@ -72,7 +72,7 @@ export function RevenueHero({ data, periodLabel, isAllTime, className = '', styl
         ) : (
           <div className="max-h-[260px] overflow-auto pl-4">
             <DataTable
-              headers={['Mes', 'Ingresos', 'Ventas']}
+              headers={['Month', 'Revenue', 'Orders']}
               rows={data.salesByMonth.map((m) => [
                 formatMonth(m.year, m.month, true),
                 formatCurrency(m.revenue),

@@ -8,8 +8,8 @@ import { CommandPalette, type PaletteAction } from './CommandPalette'
 import { Logo } from './Logo'
 
 const navItems: { to: string; label: string; icon: typeof Package; end: boolean; roles?: UserRole[] }[] = [
-  { to: '/', label: 'Resumen', icon: LayoutDashboard, end: true, roles: DASHBOARD_ROLES },
-  { to: '/productos', label: 'Catálogo', icon: Package, end: false },
+  { to: '/', label: 'Overview', icon: LayoutDashboard, end: true, roles: DASHBOARD_ROLES },
+  { to: '/products', label: 'Catalog', icon: Package, end: false },
 ]
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
@@ -38,29 +38,29 @@ export function Layout() {
   const actions: PaletteAction[] = [
     ...visibleItems.map(({ to, label, icon: Icon }) => ({
       id: `nav-${to}`,
-      label: `Ir a ${label}`,
+      label: `Go to ${label}`,
       icon: <Icon size={16} aria-hidden />,
-      group: 'Navegación',
+      group: 'Navigation',
       run: () => navigate(to),
     })),
     {
       id: 'theme',
-      label: theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+      label: theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
       icon: theme === 'dark' ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />,
-      group: 'Preferencias',
+      group: 'Preferences',
       run: toggle,
     },
     {
       id: 'logout',
-      label: 'Cerrar sesión',
+      label: 'Sign out',
       icon: <LogOut size={16} aria-hidden />,
-      group: 'Cuenta',
+      group: 'Account',
       run: () => void logout(),
     },
   ]
 
   const openProduct = useCallback(
-    (p: Product) => navigate(`/productos?q=${encodeURIComponent(p.sku)}`),
+    (p: Product) => navigate(`/products?q=${encodeURIComponent(p.sku)}`),
     [navigate],
   )
 
@@ -74,11 +74,11 @@ export function Layout() {
     <div className="min-h-screen">
       <header className="border-line bg-bg/80 sticky top-0 z-30 border-b backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 md:gap-6 md:px-8">
-          <NavLink to="/" className="shrink-0" aria-label="Ventas MX, inicio">
+          <NavLink to="/" className="shrink-0" aria-label="Ventas MX, home">
             <Logo />
           </NavLink>
 
-          <nav className="flex h-full items-stretch gap-1 md:gap-2" aria-label="Principal">
+          <nav className="flex h-full items-stretch gap-1 md:gap-2" aria-label="Main">
             {visibleItems.map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -103,10 +103,10 @@ export function Layout() {
               type="button"
               onClick={() => setPaletteOpen(true)}
               className="border-line bg-surface text-ink-3 hover:text-ink flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors"
-              aria-label="Abrir búsqueda y comandos"
+              aria-label="Open search and commands"
             >
               <Search size={15} aria-hidden />
-              <span className="hidden lg:inline">Buscar o ir a…</span>
+              <span className="hidden lg:inline">Search or jump to…</span>
               <kbd className="hidden font-mono text-[11px] md:inline">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
             </button>
 
@@ -114,8 +114,8 @@ export function Layout() {
               type="button"
               onClick={toggle}
               className="text-ink-3 hover:text-ink hover:bg-surface-2 grid size-9 place-items-center rounded-full transition-colors"
-              aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-              title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               {theme === 'dark' ? <Sun size={17} aria-hidden /> : <Moon size={17} aria-hidden />}
             </button>
@@ -139,8 +139,8 @@ export function Layout() {
                   type="button"
                   onClick={() => void logout()}
                   className="text-ink-3 hover:text-critical hover:bg-surface-2 grid size-9 place-items-center rounded-full transition-colors"
-                  aria-label="Cerrar sesión"
-                  title="Cerrar sesión"
+                  aria-label="Sign out"
+                  title="Sign out"
                 >
                   <LogOut size={16} aria-hidden />
                 </button>

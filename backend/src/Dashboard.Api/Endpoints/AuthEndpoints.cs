@@ -21,20 +21,20 @@ public static class AuthEndpoints
                 {
                     return TypedResults.ValidationProblem(new Dictionary<string, string[]>
                     {
-                        ["credentials"] = ["Correo y contraseña son obligatorios."],
+                        ["credentials"] = ["Email and password are required."],
                     });
                 }
 
                 var result = await auth.LoginAsync(request, ct);
                 if (result is null)
-                    return TypedResults.Problem(title: "Correo o contraseña incorrectos", statusCode: StatusCodes.Status401Unauthorized);
+                    return TypedResults.Problem(title: "Incorrect email or password", statusCode: StatusCodes.Status401Unauthorized);
 
                 SetRefreshCookie(http, result, env);
                 return TypedResults.Ok(result.Response);
             })
             .AllowAnonymous()
             .RequireRateLimiting(LoginRateLimitPolicy)
-            .WithSummary("Inicia sesión. Devuelve el access token y pone el refresh token en una cookie HttpOnly");
+            .WithSummary("Signs in. Returns the access token and sets the refresh token in an HttpOnly cookie");
 
         // POST /api/auth/refresh  (sin body: usa la cookie)
         group.MapPost("/refresh", async Task<Results<Ok<AuthResponse>, UnauthorizedHttpResult>> (
@@ -54,7 +54,7 @@ public static class AuthEndpoints
                 return TypedResults.Ok(result.Response);
             })
             .AllowAnonymous()
-            .WithSummary("Renueva la sesión usando la cookie de refresh token (con rotación)");
+            .WithSummary("Renews the session using the refresh token cookie (with rotation)");
 
         // POST /api/auth/logout
         group.MapPost("/logout", async (AuthService auth, HttpContext http, CancellationToken ct) =>
@@ -66,7 +66,7 @@ public static class AuthEndpoints
                 return TypedResults.NoContent();
             })
             .AllowAnonymous()
-            .WithSummary("Cierra la sesión: revoca el refresh token y borra la cookie");
+            .WithSummary("Signs out: revokes the refresh token and clears the cookie");
 
         // GET /api/auth/me
         group.MapGet("/me", async Task<Results<Ok<UserDto>, UnauthorizedHttpResult>> (
@@ -76,7 +76,7 @@ public static class AuthEndpoints
                 return user is null ? TypedResults.Unauthorized() : TypedResults.Ok(user);
             })
             .RequireAuthorization()
-            .WithSummary("Datos del usuario autenticado");
+            .WithSummary("Current user details");
 
         return app;
     }

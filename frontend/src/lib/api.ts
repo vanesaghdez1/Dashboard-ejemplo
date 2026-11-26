@@ -96,7 +96,7 @@ async function request<T>(method: string, path: string, options: RequestOptions 
     // Cancelaciones (TanStack Query aborta peticiones viejas): se dejan pasar tal cual
     if (error instanceof DOMException && error.name === 'AbortError') throw error
     // El navegador solo dice "Failed to fetch": la API está apagada o no hay red
-    throw new ApiError(0, 'No se pudo conectar con el servidor. Revisa que la API esté encendida e inténtalo de nuevo.')
+    throw new ApiError(0, "Couldn't reach the server. Make sure the API is running and try again.")
   }
 
   // Token vencido → renovar y reintentar (excepto en los propios endpoints de auth)
@@ -138,13 +138,13 @@ function toFieldErrors(errors: unknown): Record<string, string> {
 function fileNameFrom(response: Response) {
   const header = response.headers.get('Content-Disposition') ?? ''
   const match = /filename\*=UTF-8''([^;]+)/i.exec(header) ?? /filename="?([^";]+)"?/i.exec(header)
-  return match ? decodeURIComponent(match[1]) : 'descarga'
+  return match ? decodeURIComponent(match[1]) : 'download'
 }
 
 function defaultMessage(status: number) {
-  if (status === 401) return 'Tu sesión expiró'
-  if (status === 403) return 'No tienes permiso para ver esto'
-  if (status === 429) return 'Demasiados intentos, espera un minuto'
+  if (status === 401) return 'Your session has expired'
+  if (status === 403) return "You don't have permission to view this"
+  if (status === 429) return 'Too many attempts. Please wait a minute.'
   return `Error ${status}`
 }
 

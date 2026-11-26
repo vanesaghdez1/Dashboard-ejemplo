@@ -28,7 +28,7 @@ export function RoleGate({ roles }: { roles: UserRole[] }) {
 function FullScreenLoader() {
   return (
     <div className="text-ink-3 grid min-h-screen place-items-center text-sm" aria-busy="true">
-      Cargando sesión…
+      Loading session…
     </div>
   )
 }

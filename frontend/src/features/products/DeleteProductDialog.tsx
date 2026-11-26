@@ -23,7 +23,7 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
     if (!product) return
     try {
       await deleteProduct.mutateAsync(product.id)
-      onDeleted(`“${product.name}” se eliminó`)
+      onDeleted(`“${product.name}” deleted`)
       handleClose()
     } catch {
       /* el error se muestra abajo */
@@ -32,10 +32,10 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
 
   const error = deleteProduct.error
   return (
-    <Dialog open={product !== null} onClose={handleClose} title="Eliminar producto">
+    <Dialog open={product !== null} onClose={handleClose} title="Delete product">
       <p className="text-ink-2 text-sm">
-        ¿Seguro que quieres eliminar <strong className="text-ink">{product?.name}</strong> ({product?.sku})? Esta
-        acción no se puede deshacer.
+        Are you sure you want to delete <strong className="text-ink">{product?.name}</strong> ({product?.sku})? This
+        action can’t be undone.
       </p>
 
       {error && (
@@ -50,7 +50,7 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
 
       <footer className="mt-6 flex justify-end gap-2">
         <button type="button" onClick={handleClose} className="border-line text-ink hover:bg-surface-2 rounded-full border px-5 py-2 text-sm">
-          {error ? 'Entendido' : 'Cancelar'}
+          {error ? 'Got it' : 'Cancel'}
         </button>
         {!error && (
           <button
@@ -59,7 +59,7 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: Props) {
             disabled={deleteProduct.isPending}
             className="bg-critical rounded-full px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            {deleteProduct.isPending ? 'Eliminando…' : 'Eliminar'}
+            {deleteProduct.isPending ? 'Deleting…' : 'Delete'}
           </button>
         )}
       </footer>

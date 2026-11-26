@@ -1,22 +1,28 @@
-const currency = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
-const currencyCompact = new Intl.NumberFormat('es-MX', {
+const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MXN', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 })
+const currencyCompact = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'MXN',
+  currencyDisplay: 'narrowSymbol',
   notation: 'compact',
   maximumFractionDigits: 1,
 })
-const integer = new Intl.NumberFormat('es-MX')
-const monthShort = new Intl.DateTimeFormat('es-MX', { month: 'short', year: '2-digit', timeZone: 'UTC' })
-const monthLong = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+const integer = new Intl.NumberFormat('en-US')
+const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short', year: '2-digit', timeZone: 'UTC' })
+const monthLong = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
 
 export const formatCurrency = (value: number) => currency.format(value)
 export const formatCompactCurrency = (value: number) => currencyCompact.format(value)
 export const formatNumber = (value: number) => integer.format(value)
-export const formatPercent = (value: number) => `${(value * 100).toFixed(1)} %`
+export const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
 
 export const formatMonth = (year: number, month: number, long = false) => {
-  const text = (long ? monthLong : monthShort).format(new Date(Date.UTC(year, month - 1, 1)))
-  return text.charAt(0).toUpperCase() + text.slice(1) // "junio de 2026" → "Junio de 2026"
+  const date = new Date(Date.UTC(year, month - 1, 1))
+  if (long) return monthLong.format(date) // "June 2026"
+  // "Jun 26" se confundiría con un día del mes: se escribe "Jun '26"
+  const parts = monthShort.formatToParts(date)
+  const m = parts.find((p) => p.type === 'month')?.value ?? ''
+  const y = parts.find((p) => p.type === 'year')?.value ?? ''
+  return `${m} '${y}`
 }
 
 /** ¿El mes indicado es el mes actual (todavía sin cerrar)? */
@@ -33,10 +39,10 @@ export const toIsoDate = (date: Date) => {
   return `${y}-${m}-${d}`
 }
 
-const longDate = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
-const dayMonth = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', timeZone: 'UTC' })
-const dayFull = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-const monthOnly = new Intl.DateTimeFormat('es-MX', { month: 'short', timeZone: 'UTC' })
+const longDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', day: 'numeric', month: 'long' })
+const dayMonth = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+const dayFull = new Intl.DateTimeFormat('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+const monthOnly = new Intl.DateTimeFormat('en-US', { month: 'short', timeZone: 'UTC' })
 
 /** "jueves 20 de noviembre" (fecha de hoy en el encabezado). */
 export const formatToday = (date = new Date()) => longDate.format(date)
@@ -57,10 +63,14 @@ export const formatMonthShort = (date: Date) => monthOnly.format(date).replace('
 export const relativeChange = (current: number, previous: number | undefined | null) =>
   previous ? (current - previous) / previous : null
 
-export const formatSignedPercent = (value: number) => `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(1)} %`
+export const formatSignedPercent = (value: number) => `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(1)}%`
 
 /** Saludo según la hora local. */
 export const greeting = (date = new Date()) => {
   const h = date.getHours()
-  return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'
+  return h < 12 ? 'Good morning' : h < 19 ? 'Good afternoon' : 'Good evening'
 }
+
+/** "1 order" / "12 orders": número + sustantivo en singular o plural (inglés). */
+export const formatCount = (value: number, singular: string, plural = `${singular}s`) =>
+  `${formatNumber(value)} ${value === 1 ? singular : plural}`

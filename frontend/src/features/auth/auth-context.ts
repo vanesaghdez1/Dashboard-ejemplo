@@ -15,18 +15,18 @@ export const AuthContext = createContext<AuthContextValue | null>(null)
 /** Acceso a la sesión desde cualquier componente: const { user, logout } = useAuth() */
 export function useAuth() {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth debe usarse dentro de <AuthProvider>')
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>')
   return ctx
 }
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  Admin: 'Administrador',
-  Manager: 'Gerente',
-  Seller: 'Vendedor',
+  Admin: 'Administrator',
+  Manager: 'Manager',
+  Seller: 'Sales rep',
 }
 
 /** Roles que pueden ver el dashboard financiero (debe coincidir con la política del backend). */
 export const DASHBOARD_ROLES: UserRole[] = ['Admin', 'Manager']
 
 /** Página inicial según el rol. */
-export const homePathFor = (user: User) => (DASHBOARD_ROLES.includes(user.role) ? '/' : '/productos')
+export const homePathFor = (user: User) => (DASHBOARD_ROLES.includes(user.role) ? '/' : '/products')

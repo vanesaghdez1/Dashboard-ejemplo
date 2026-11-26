@@ -8,9 +8,9 @@ import { Logo } from '../../components/Logo'
 // Cuentas públicas de demostración (se crean en DataSeeder.cs).
 const DEMO_PASSWORD = 'Demo123!'
 const DEMO_ACCOUNTS: { email: string; role: UserRole; initials: string; description: string }[] = [
-  { email: 'admin@ventasmx.demo', role: 'Admin', initials: 'AA', description: 'Todas las sucursales y catálogo' },
-  { email: 'gerente@ventasmx.demo', role: 'Manager', initials: 'GG', description: 'Solo Monterrey' },
-  { email: 'vendedor@ventasmx.demo', role: 'Seller', initials: 'VV', description: 'Catálogo, sin finanzas' },
+  { email: 'admin@ventasmx.demo', role: 'Admin', initials: 'AD', description: 'All branches and the catalog' },
+  { email: 'gerente@ventasmx.demo', role: 'Manager', initials: 'MG', description: 'Monterrey branch only' },
+  { email: 'vendedor@ventasmx.demo', role: 'Seller', initials: 'SR', description: 'Catalog only, no financials' },
 ]
 
 export function LoginPage() {
@@ -34,7 +34,7 @@ export function LoginPage() {
       const loggedUser = await login(emailValue, passwordValue)
       navigate(from && from !== '/login' ? from : homePathFor(loggedUser), { replace: true })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo iniciar sesión')
+      setError(e instanceof Error ? e.message : "Couldn't sign in")
     } finally {
       setSubmitting(false)
     }
@@ -56,7 +56,7 @@ export function LoginPage() {
       {/* Formulario */}
       <main className="flex items-center justify-center px-6 py-12 md:px-12">
         <div className="w-full max-w-md">
-          <h1 className="text-ink font-serif text-5xl tracking-tight">Inicia sesión</h1>
+          <h1 className="text-ink font-serif text-5xl tracking-tight">Sign in</h1>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6" noValidate>
             {error && (
@@ -66,19 +66,19 @@ export function LoginPage() {
               </div>
             )}
 
-            <UnderlineField label="Correo">
+            <UnderlineField label="Email">
               <input
                 type="email"
                 autoComplete="username"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@empresa.mx"
+                placeholder="you@company.com"
                 className="text-ink placeholder:text-ink-3 w-full bg-transparent py-2 text-lg outline-none"
               />
             </UnderlineField>
 
-            <UnderlineField label="Contraseña">
+            <UnderlineField label="Password">
               <input
                 type="password"
                 autoComplete="current-password"
@@ -95,7 +95,7 @@ export function LoginPage() {
               disabled={submitting || !email || !password}
               className="group bg-ink text-bg flex items-center justify-between rounded-full py-3 pr-3 pl-6 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
             >
-              {submitting ? 'Entrando…' : 'Entrar'}
+              {submitting ? 'Signing in…' : 'Sign in'}
               <span className="bg-accent text-on-accent grid size-8 place-items-center rounded-full transition-transform group-hover:translate-x-0.5">
                 <ArrowRight size={16} aria-hidden />
               </span>
@@ -108,7 +108,7 @@ export function LoginPage() {
                 Demo
               </h2>
               <span className="text-ink-3 font-mono text-[11px]">
-                clave <code className="text-ink-2">{DEMO_PASSWORD}</code>
+                password <code className="text-ink-2">{DEMO_PASSWORD}</code>
               </span>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
