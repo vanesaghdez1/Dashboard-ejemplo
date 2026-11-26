@@ -119,7 +119,7 @@ export function LoginPage() {
                   disabled={submitting}
                   onClick={() => void signIn(account.email, DEMO_PASSWORD)}
                   title={account.description}
-                  className="group border-line bg-surface hover:border-accent flex items-center gap-3 rounded-2xl border p-3 text-left transition-colors disabled:opacity-50"
+                  className="group border-line bg-surface hover:border-accent flex min-w-0 items-center gap-3 rounded-2xl border p-3 text-left sm:flex-col sm:items-start sm:gap-2 transition-colors disabled:opacity-50"
                 >
                   <span className="bg-surface-2 text-ink group-hover:bg-accent group-hover:text-on-accent grid size-9 shrink-0 place-items-center rounded-full font-mono text-xs font-semibold transition-colors">
                     {account.initials}
