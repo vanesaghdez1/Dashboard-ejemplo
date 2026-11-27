@@ -13,13 +13,13 @@ public class ValidationFilter<T> : IEndpointFilter
     {
         var argument = context.Arguments.OfType<T>().FirstOrDefault();
         if (argument is null)
-            return TypedResults.Problem(title: "El cuerpo de la petición es inválido", statusCode: StatusCodes.Status400BadRequest);
+            return TypedResults.Problem(title: "The request body is invalid", statusCode: StatusCodes.Status400BadRequest);
 
         var validator = context.HttpContext.RequestServices.GetRequiredService<IValidator<T>>();
         var result = await validator.ValidateAsync(argument, context.HttpContext.RequestAborted);
 
         if (!result.IsValid)
-            return TypedResults.ValidationProblem(result.ToDictionary(), title: "Revisa los datos del formulario");
+            return TypedResults.ValidationProblem(result.ToDictionary(), title: "Please check the form fields");
 
         return await next(context);
     }

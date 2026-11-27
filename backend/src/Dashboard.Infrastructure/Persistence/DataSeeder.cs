@@ -34,8 +34,8 @@ public class DataSeeder(AppDbContext db, IPasswordHasher passwordHasher, ILogger
         var users = new List<User>
         {
             new() { Email = "admin@ventasmx.demo", FullName = "Andrea Admin", Role = UserRole.Admin },
-            new() { Email = "gerente@ventasmx.demo", FullName = "Gabriel Gerente", Role = UserRole.Manager, BranchId = monterrey.Id },
-            new() { Email = "vendedor@ventasmx.demo", FullName = "Valeria Vendedora", Role = UserRole.Seller, BranchId = cdmx.Id },
+            new() { Email = "gerente@ventasmx.demo", FullName = "Gabriel Garza", Role = UserRole.Manager, BranchId = monterrey.Id },
+            new() { Email = "vendedor@ventasmx.demo", FullName = "Valeria Vega", Role = UserRole.Seller, BranchId = cdmx.Id },
         };
         foreach (var user in users)
             user.PasswordHash = passwordHasher.Hash(user, DemoPassword);
@@ -54,7 +54,7 @@ public class DataSeeder(AppDbContext db, IPasswordHasher passwordHasher, ILogger
 
         var branches = new List<Branch>
         {
-            new() { Name = "CDMX Centro", City = "Ciudad de México" },
+            new() { Name = "CDMX Centro", City = "Mexico City" },
             new() { Name = "Monterrey Valle", City = "Monterrey" },
             new() { Name = "Guadalajara Chapultepec", City = "Guadalajara" },
             new() { Name = "Puebla Angelópolis", City = "Puebla" },
@@ -62,31 +62,31 @@ public class DataSeeder(AppDbContext db, IPasswordHasher passwordHasher, ILogger
 
         var catalog = new Dictionary<string, (string Name, decimal Price)[]>
         {
-            ["Electrónica"] =
+            ["Electronics"] =
             [
-                ("Audífonos Bluetooth", 899), ("Bocina portátil", 1299), ("Cargador rápido 30W", 449),
-                ("Smartwatch deportivo", 2499), ("Teclado mecánico", 1599), ("Mouse inalámbrico", 399),
-                ("Monitor 27\"", 5499), ("Webcam HD", 799),
+                ("Bluetooth Headphones", 899), ("Portable Speaker", 1299), ("30W Fast Charger", 449),
+                ("Sports Smartwatch", 2499), ("Mechanical Keyboard", 1599), ("Wireless Mouse", 399),
+                ("27\" Monitor", 5499), ("HD Webcam", 799),
             ],
-            ["Hogar"] =
+            ["Home"] =
             [
-                ("Cafetera de goteo", 1199), ("Licuadora", 999), ("Juego de sartenes", 1499),
-                ("Lámpara LED de escritorio", 549), ("Aspiradora de mano", 1899), ("Juego de toallas", 499),
+                ("Drip Coffee Maker", 1199), ("Blender", 999), ("Frying Pan Set", 1499),
+                ("LED Desk Lamp", 549), ("Handheld Vacuum", 1899), ("Towel Set", 499),
             ],
-            ["Oficina"] =
+            ["Office"] =
             [
-                ("Silla ergonómica", 3899), ("Escritorio ajustable", 6999), ("Paquete de cuadernos", 189),
-                ("Organizador de escritorio", 259), ("Calculadora científica", 349),
+                ("Ergonomic Chair", 3899), ("Standing Desk", 6999), ("Notebook Pack", 189),
+                ("Desk Organizer", 259), ("Scientific Calculator", 349),
             ],
-            ["Deportes"] =
+            ["Sports"] =
             [
-                ("Tapete de yoga", 449), ("Mancuernas 5kg (par)", 699), ("Botella térmica", 299),
-                ("Balón de fútbol", 399), ("Cuerda para saltar", 149), ("Mochila deportiva", 799),
+                ("Yoga Mat", 449), ("5 kg Dumbbells (pair)", 699), ("Insulated Bottle", 299),
+                ("Soccer Ball", 399), ("Jump Rope", 149), ("Sports Backpack", 799),
             ],
-            ["Papelería"] =
+            ["Stationery"] =
             [
-                ("Plumas gel (12)", 129), ("Marcadores (24)", 219), ("Hojas blancas (500)", 159),
-                ("Carpeta de argollas", 99), ("Notas adhesivas", 79),
+                ("Gel Pens (12)", 129), ("Markers (24)", 219), ("Printer Paper (500)", 159),
+                ("Ring Binder", 99), ("Sticky Notes", 79),
             ],
         };
 
@@ -126,7 +126,7 @@ public class DataSeeder(AppDbContext db, IPasswordHasher passwordHasher, ILogger
             return new Customer
             {
                 Name = $"{first} {last}",
-                Email = $"{first}.{last}.{i}@ejemplo.com".ToLowerInvariant(),
+                Email = $"{first}.{last}.{i}@example.com".ToLowerInvariant(),
             };
         }).ToList();
 

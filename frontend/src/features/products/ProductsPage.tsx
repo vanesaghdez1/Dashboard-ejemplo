@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Plus, S
 import { useProducts } from './queries'
 import { ProductFormDialog, type ProductDialogState } from './ProductFormDialog'
 import { DeleteProductDialog } from './DeleteProductDialog'
-import { formatCurrency, formatNumber } from '../../lib/format'
+import { formatCount, formatCurrency, formatNumber } from '../../lib/format'
 import { QueryError } from '../../components/QueryError'
 import { ExportButton } from '../../components/ExportButton'
 import { Toast } from '../../components/Toast'
@@ -53,9 +53,9 @@ export function ProductsPage() {
     <div className="flex flex-col gap-8">
       <header className="rise flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="eyebrow">Inventario · {data ? `${formatNumber(data.totalCount)} ${data.totalCount === 1 ? 'producto' : 'productos'}` : '…'}</p>
+          <p className="eyebrow">Inventory · {data ? formatCount(data.totalCount, 'product') : '…'}</p>
           <h1 className="text-ink mt-3 font-serif text-5xl leading-[0.95] tracking-tight md:text-7xl">
-            Catálogo<span className="text-accent">.</span>
+            Catalog<span className="text-accent">.</span>
           </h1>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
@@ -68,8 +68,8 @@ export function ProductsPage() {
                 setSearch(e.target.value)
                 setPage(1) // nueva búsqueda → volver a la primera página
               }}
-              placeholder="Buscar por nombre o SKU"
-              aria-label="Buscar productos"
+              placeholder="Search by name or SKU"
+              aria-label="Search products"
               className="border-line bg-surface text-ink placeholder:text-ink-3 w-full rounded-full border py-2 pr-4 pl-9 text-sm"
             />
           </div>
@@ -80,7 +80,7 @@ export function ProductsPage() {
               onClick={() => setFormState({ mode: 'create' })}
               className="bg-accent text-on-accent flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
             >
-              <Plus size={16} aria-hidden /> Nuevo producto
+              <Plus size={16} aria-hidden /> New product
             </button>
           )}
         </div>
@@ -93,14 +93,14 @@ export function ProductsPage() {
           <thead>
             <tr className="border-line border-b text-left [&>th]:eyebrow [&>th]:font-normal">
               <th className="px-5 py-4">SKU</th>
-              <th className="px-5 py-4">Producto</th>
-              <th className="px-5 py-4">Categoría</th>
-              <th className="px-5 py-4 text-right">Precio</th>
+              <th className="px-5 py-4">Product</th>
+              <th className="px-5 py-4">Category</th>
+              <th className="px-5 py-4 text-right">Price</th>
               <th className="px-5 py-4">Stock</th>
-              <th className="px-5 py-4">Estado</th>
+              <th className="px-5 py-4">Status</th>
               {isAdmin && (
                 <th className="px-5 py-4 text-right">
-                  <span className="sr-only">Acciones</span>
+                  <span className="sr-only">Actions</span>
                 </th>
               )}
             </tr>
@@ -119,20 +119,20 @@ export function ProductsPage() {
                   {/* Estado con ícono + texto: nunca solo color */}
                   {p.isLowStock ? (
                     <span className="text-ink inline-flex items-center gap-1.5">
-                      <AlertTriangle size={14} className="text-warning" aria-hidden /> Resurtir
+                      <AlertTriangle size={14} className="text-warning" aria-hidden /> Reorder
                     </span>
                   ) : (
                     <span className="text-ink-2 inline-flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-good" aria-hidden /> Disponible
+                      <CheckCircle2 size={14} className="text-good" aria-hidden /> In stock
                     </span>
                   )}
                 </td>
                 {isAdmin && (
                   <td className="px-5 py-2 text-right whitespace-nowrap">
-                    <IconButton label={`Editar ${p.name}`} onClick={() => setFormState({ mode: 'edit', id: p.id })}>
+                    <IconButton label={`Edit ${p.name}`} onClick={() => setFormState({ mode: 'edit', id: p.id })}>
                       <Pencil size={15} aria-hidden />
                     </IconButton>
-                    <IconButton label={`Eliminar ${p.name}`} onClick={() => setToDelete(p)} danger>
+                    <IconButton label={`Delete ${p.name}`} onClick={() => setToDelete(p)} danger>
                       <Trash2 size={15} aria-hidden />
                     </IconButton>
                   </td>
@@ -142,14 +142,14 @@ export function ProductsPage() {
             {data && data.items.length === 0 && (
               <tr>
                 <td colSpan={columns} className="text-ink-3 px-5 py-12 text-center">
-                  No hay productos que coincidan con “{debouncedSearch}”.
+                  No products match “{debouncedSearch}”.
                 </td>
               </tr>
             )}
             {!data && products.isPending && (
               <tr>
                 <td colSpan={columns} className="text-ink-3 px-5 py-12 text-center">
-                  Cargando…
+                  Loading…
                 </td>
               </tr>
             )}
@@ -158,15 +158,15 @@ export function ProductsPage() {
       </div>
 
       {data && data.totalPages > 1 && (
-        <nav className="text-ink-2 flex items-center justify-between text-sm" aria-label="Paginación">
+        <nav className="text-ink-2 flex items-center justify-between text-sm" aria-label="Pagination">
           <span className="tabular font-mono text-xs">
-            {formatNumber(data.totalCount)} productos · página {data.page} de {data.totalPages}
+            {formatCount(data.totalCount, 'product')} · page {data.page} of {data.totalPages}
           </span>
           <div className="flex gap-2">
-            <PageButton disabled={page <= 1} onClick={() => setPage((p) => p - 1)} label="Página anterior">
+            <PageButton disabled={page <= 1} onClick={() => setPage((p) => p - 1)} label="Previous page">
               <ChevronLeft size={16} aria-hidden />
             </PageButton>
-            <PageButton disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)} label="Página siguiente">
+            <PageButton disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)} label="Next page">
               <ChevronRight size={16} aria-hidden />
             </PageButton>
           </div>
@@ -214,14 +214,14 @@ function StockMeter({ stock, minStock, low }: { stock: number; minStock: number;
   return (
     <div className="flex items-center gap-3">
       <span className="text-ink tabular w-10 text-right font-mono text-[13px]">{formatNumber(stock)}</span>
-      <span className="bg-surface-2 relative h-1.5 w-24 rounded-full" title={`Mínimo: ${minStock}`}>
+      <span className="bg-surface-2 relative h-1.5 w-24 rounded-full" title={`Minimum: ${minStock}`}>
         <span
           className={`absolute inset-y-0 left-0 rounded-full ${low ? 'bg-warning' : 'bg-accent'}`}
           style={{ width: `${(stock / scale) * 100}%` }}
         />
         <span className="bg-ink-3 absolute -top-1 h-3.5 w-px" style={{ left: `${(minStock / scale) * 100}%` }} />
       </span>
-      <span className="text-ink-3 sr-only">mínimo {minStock}</span>
+      <span className="text-ink-3 sr-only">minimum {minStock}</span>
     </div>
   )
 }

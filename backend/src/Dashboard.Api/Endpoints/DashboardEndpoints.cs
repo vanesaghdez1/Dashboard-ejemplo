@@ -19,7 +19,7 @@ public static class DashboardEndpoints
                 DashboardService service, CancellationToken ct) =>
             TypedResults.Ok(await service.GetSummaryAsync(new DashboardFilter(from, to, branchId), ct)))
             .WithName("GetDashboardSummary")
-            .WithSummary("KPIs, ventas por mes, top productos y ventas por sucursal");
+            .WithSummary("KPIs, monthly sales, top products and sales by branch");
 
         // GET /api/dashboard/export?from=...&to=...&branchId=...  → archivo .xlsx con 4 hojas
         group.MapGet("/export", async (
@@ -29,9 +29,9 @@ public static class DashboardEndpoints
                 var filter = new DashboardFilter(from, to, branchId);
                 var summary = await service.GetSummaryAsync(filter, ct); // mismo filtro de seguridad por rol
                 return TypedResults.File(excel.ExportDashboard(summary, filter), ProductEndpoints.ExcelContentType,
-                    $"reporte-ventas-{DateTime.Now:yyyy-MM-dd}.xlsx");
+                    $"sales-report-{DateTime.Now:yyyy-MM-dd}.xlsx");
             })
-            .WithSummary("Exporta el reporte del dashboard a Excel");
+            .WithSummary("Exports the dashboard report to Excel");
 
         return app;
     }

@@ -11,6 +11,7 @@ import { DailyRhythm } from './components/DailyRhythm'
 import { WEEKDAY_NAMES, weekdayStats } from './rhythm'
 import {
   formatCompactCurrency,
+  formatCount,
   formatCurrency,
   formatNumber,
   formatPercent,
@@ -25,11 +26,11 @@ import { useAuth } from '../auth/auth-context'
 import { ExportButton } from '../../components/ExportButton'
 
 const PERIOD_LABELS: Record<RangePreset, string> = {
-  '30d': 'últimos 30 días',
-  '3m': 'últimos 3 meses',
-  '6m': 'últimos 6 meses',
-  '12m': 'últimos 12 meses',
-  all: 'todo el histórico',
+  '30d': 'Last 30 days',
+  '3m': 'Last 3 months',
+  '6m': 'Last 6 months',
+  '12m': 'Last 12 months',
+  all: 'All time',
 }
 
 function rangeToFilter(range: RangePreset): Pick<DashboardFilter, 'from' | 'to'> {
@@ -73,7 +74,7 @@ export function DashboardPage() {
       <header className="rise flex flex-col gap-5">
         <div>
           <p className="eyebrow">
-            {formatToday()} · {branchName ?? 'Todas las sucursales'}
+            {formatToday()} · {branchName ?? 'All branches'}
           </p>
           <h1 className="text-ink mt-1 font-serif text-4xl leading-none tracking-tight md:text-5xl">
             {greeting()}, <em className="text-accent">{firstName}</em>
@@ -106,14 +107,14 @@ export function DashboardPage() {
           <KpiColumn data={data} />
 
           <ChartCard
-            title="Ritmo diario"
+            title="Daily rhythm"
             subtitle={<BestDay data={data} filter={filter} />}
             className="lg:col-span-12"
             style={stagger(6)}
             chart={<DailyRhythm days={data.salesByDay} from={filter.from} to={filter.to} />}
             table={
               <DataTable
-                headers={['Día', 'Ingreso promedio', 'Ventas promedio']}
+                headers={['Day', 'Avg. revenue', 'Avg. orders']}
                 rows={weekdayStats(data.salesByDay, filter.from, filter.to).stats.map((s) => [
                   WEEKDAY_NAMES[s.weekday],
                   formatCurrency(s.avgRevenue),
@@ -124,7 +125,7 @@ export function DashboardPage() {
           />
 
           <ChartCard
-            title="Top productos"
+            title="Top products"
             className={isManager ? 'lg:col-span-12' : 'lg:col-span-7'}
             style={stagger(7)}
             chart={
@@ -133,13 +134,13 @@ export function DashboardPage() {
                   id: p.productId,
                   name: p.name,
                   value: p.revenue,
-                  detail: `${formatNumber(p.units)} uds.`,
+                  detail: formatCount(p.units, 'unit'),
                 }))}
               />
             }
             table={
               <DataTable
-                headers={['Producto', 'Unidades', 'Ingresos']}
+                headers={['Product', 'Units', 'Revenue']}
                 rows={data.topProducts.map((p) => [p.name, formatNumber(p.units), formatCurrency(p.revenue)])}
               />
             }
@@ -148,7 +149,7 @@ export function DashboardPage() {
           {/* Comparar sucursales solo tiene sentido si ves más de una (Admin) */}
           {!isManager && (
             <ChartCard
-              title="Sucursales"
+              title="Branches"
               className="lg:col-span-5"
               style={stagger(8)}
               chart={
@@ -158,13 +159,13 @@ export function DashboardPage() {
                     id: b.branchId,
                     name: b.branch,
                     value: b.revenue,
-                    detail: `${formatNumber(b.orders)} ventas`,
+                    detail: formatCount(b.orders, 'order'),
                   }))}
                 />
               }
               table={
                 <DataTable
-                  headers={['Sucursal', 'Ventas', 'Ingresos']}
+                  headers={['Branch', 'Orders', 'Revenue']}
                   rows={data.salesByBranch.map((b) => [b.branch, formatNumber(b.orders), formatCurrency(b.revenue)])}
                 />
               }
@@ -189,51 +190,51 @@ function KpiColumn({ data }: { data: DashboardSummary }) {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-1">
       <KpiTile
-        label="Ventas"
+        label="Orders"
         value={kpis.orders}
         format={(v) => formatNumber(Math.round(v))}
         change={relativeChange(kpis.orders, previous?.orders)}
-        aside={<Sparkline values={series.map((s) => s.orders)} label="Tendencia de número de ventas" />}
+        aside={<Sparkline values={series.map((s) => s.orders)} label="Order count trend" />}
         style={stagger(2)}
       />
       <KpiTile
-        label="Ticket promedio"
+        label="Average order value"
         value={kpis.averageTicket}
         format={(v) => formatCurrency(Math.round(v))}
         change={relativeChange(kpis.averageTicket, previous?.averageTicket)}
         aside={
           <Sparkline
             values={series.map((s) => (s.orders ? s.revenue / s.orders : 0))}
-            label="Tendencia del ticket promedio"
+            label="Average order value trend"
           />
         }
         style={stagger(3)}
       />
       <KpiTile
-        label="Margen bruto"
+        label="Gross margin"
         value={marginRate * 100}
-        format={(v) => `${v.toFixed(1)} %`}
-        footer={<span className="text-ink-3 font-mono">{formatCompactCurrency(kpis.grossMargin)} de utilidad</span>}
+        format={(v) => `${v.toFixed(1)}%`}
+        footer={<span className="text-ink-3 font-mono">{formatCompactCurrency(kpis.grossMargin)} profit</span>}
         aside={<MarginRing rate={marginRate} />}
         style={stagger(4)}
       />
       <KpiTile
-        label="Stock bajo"
+        label="Low stock"
         value={kpis.lowStockProducts}
         format={(v) => formatNumber(Math.round(v))}
         footer={
-          <Link to="/productos" className="text-ink-2 hover:text-accent inline-flex items-center gap-1 font-mono">
-            Ver catálogo <ArrowRight size={12} aria-hidden />
+          <Link to="/products" className="text-ink-2 hover:text-accent inline-flex items-center gap-1 font-mono">
+            View catalog <ArrowRight size={12} aria-hidden />
           </Link>
         }
         aside={
           kpis.lowStockProducts > 0 ? (
             <span className="text-warning flex items-center gap-1.5 text-xs font-medium">
-              <AlertTriangle size={16} aria-hidden /> Por resurtir
+              <AlertTriangle size={16} aria-hidden /> Needs restock
             </span>
           ) : (
             <span className="text-good flex items-center gap-1.5 text-xs font-medium">
-              <CheckCircle2 size={16} aria-hidden /> Inventario sano
+              <CheckCircle2 size={16} aria-hidden /> Stock healthy
             </span>
           )
         }
@@ -272,16 +273,16 @@ function BestDay({ data, filter }: { data: DashboardSummary; filter: DashboardFi
   if (!best.avgRevenue) return null
   return (
     <span className="flex flex-wrap items-center gap-2 font-mono text-xs">
-      <span className="eyebrow">Mejor día</span>
+      <span className="eyebrow">Best day</span>
       <span className="bg-accent-soft text-ink rounded-full px-2.5 py-0.5 font-sans text-sm font-medium">
         {WEEKDAY_NAMES[best.weekday]}
       </span>
-      <span className="text-ink tabular">{formatCompactCurrency(best.avgRevenue)}/día</span>
+      <span className="text-ink tabular">{formatCompactCurrency(best.avgRevenue)}/day</span>
       {uplift > 0.01 && (
         <span className="text-good inline-flex items-center gap-0.5">
           <ArrowUpRight size={14} aria-hidden />
           {formatPercent(uplift)}
-          <span className="sr-only">más que un día típico</span>
+          <span className="sr-only">above a typical day</span>
         </span>
       )}
     </span>
@@ -290,7 +291,7 @@ function BestDay({ data, filter }: { data: DashboardSummary; filter: DashboardFi
 
 function DashboardSkeleton() {
   return (
-    <div className="grid animate-pulse grid-cols-1 gap-5 lg:grid-cols-12" aria-busy="true" aria-label="Cargando">
+    <div className="grid animate-pulse grid-cols-1 gap-5 lg:grid-cols-12" aria-busy="true" aria-label="Loading">
       <div className="bg-surface-2 h-[440px] rounded-[24px] lg:col-span-8" />
       <div className="flex flex-col gap-5 lg:col-span-4">
         {Array.from({ length: 4 }).map((_, i) => (

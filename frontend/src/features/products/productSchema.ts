@@ -5,10 +5,10 @@ import { z } from 'zod'
  * Repite las reglas de ProductValidators.cs del backend, que es quien tiene la última palabra:
  * si alguien se salta esta validación, la API igual rechaza los datos.
  */
-const numberField = (message: string) => z.number({ error: 'Ingresa un número válido.' }).min(0, message)
+const numberField = (message: string) => z.number({ error: 'Enter a valid number.' }).min(0, message)
 
-const priceField = z.number({ error: 'Ingresa un número válido.' }).gt(0, 'El precio debe ser mayor a 0.')
-const costField = numberField('El costo no puede ser negativo.')
+const priceField = z.number({ error: 'Enter a valid number.' }).gt(0, 'Price must be greater than 0.')
+const costField = numberField('Cost cannot be negative.')
 const priceAndCost = z.object({ price: priceField, cost: costField })
 
 export const productSchema = z
@@ -16,18 +16,18 @@ export const productSchema = z
     sku: z
       .string()
       .trim()
-      .min(1, 'El SKU es obligatorio.')
-      .max(30, 'El SKU no puede tener más de 30 caracteres.')
-      .regex(/^[A-Za-z0-9-]+$/, 'El SKU solo puede tener letras, números y guiones.'),
-    name: z.string().trim().min(1, 'El nombre es obligatorio.').max(200, 'Máximo 200 caracteres.'),
-    categoryId: z.string().min(1, 'Selecciona una categoría.'),
+      .min(1, 'SKU is required.')
+      .max(30, 'SKU cannot exceed 30 characters.')
+      .regex(/^[A-Za-z0-9-]+$/, 'SKU can only contain letters, numbers, and hyphens.'),
+    name: z.string().trim().min(1, 'Name is required.').max(200, 'Name cannot exceed 200 characters.'),
+    categoryId: z.string().min(1, 'Select a category.'),
     price: priceField,
     cost: costField,
-    stock: numberField('El stock no puede ser negativo.').int('Debe ser un número entero.'),
-    minStock: numberField('El stock mínimo no puede ser negativo.').int('Debe ser un número entero.'),
+    stock: numberField('Stock cannot be negative.').int('Must be a whole number.'),
+    minStock: numberField('Minimum stock cannot be negative.').int('Must be a whole number.'),
   })
   .refine((p) => p.price >= p.cost, {
-    message: 'El precio no puede ser menor que el costo.',
+    message: 'Price cannot be lower than cost.',
     path: ['price'],
     // Revisar esta regla en cuanto precio y costo sean válidos, aunque otros campos sigan vacíos
     when: (payload) => priceAndCost.safeParse(payload.value).success,

@@ -42,7 +42,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
             <button
               type="button"
               onClick={onClose}
-              aria-label="Cerrar"
+              aria-label="Close"
               className="text-ink-3 hover:bg-surface-2 hover:text-ink rounded-full p-1.5"
             >
               <X size={18} aria-hidden />

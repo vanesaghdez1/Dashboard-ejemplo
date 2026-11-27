@@ -14,11 +14,11 @@ public class CreateProductValidator : AbstractValidator<CreateProductRequest>
     {
         RuleFor(x => x.Sku)
             .Cascade(CascadeMode.Stop) // si una regla falla, no evalúa las siguientes (evita consultar la BD con un SKU vacío)
-            .NotEmpty().WithMessage("El SKU es obligatorio.")
-            .MaximumLength(30).WithMessage("El SKU no puede tener más de 30 caracteres.")
-            .Matches("^[A-Za-z0-9-]+$").WithMessage("El SKU solo puede tener letras, números y guiones.")
+            .NotEmpty().WithMessage("SKU is required.")
+            .MaximumLength(30).WithMessage("SKU cannot be longer than 30 characters.")
+            .Matches("^[A-Za-z0-9-]+$").WithMessage("SKU can only contain letters, numbers and hyphens.")
             .MustAsync(async (sku, ct) => !await db.Products.AnyAsync(p => p.Sku == sku.Trim().ToUpper(), ct))
-            .WithMessage("Ya existe un producto con ese SKU.");
+            .WithMessage("A product with this SKU already exists.");
 
         Include(new ProductFieldsValidator(db)); // + las reglas comunes
     }
@@ -38,25 +38,25 @@ public class ProductFieldsValidator : AbstractValidator<IProductFields>
     public ProductFieldsValidator(IAppDbContext db)
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("El nombre es obligatorio.")
-            .MaximumLength(200).WithMessage("El nombre no puede tener más de 200 caracteres.");
+            .NotEmpty().WithMessage("Name is required.")
+            .MaximumLength(200).WithMessage("Name cannot be longer than 200 characters.");
 
         RuleFor(x => x.CategoryId)
             .MustAsync(async (id, ct) => await db.Categories.AnyAsync(c => c.Id == id, ct))
-            .WithMessage("Selecciona una categoría válida.");
+            .WithMessage("Select a valid category.");
 
         RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage("El precio debe ser mayor a 0.")
+            .GreaterThan(0).WithMessage("Price must be greater than 0.")
             // Regla de negocio: no vender por debajo del costo.
-            .GreaterThanOrEqualTo(x => x.Cost).WithMessage("El precio no puede ser menor que el costo.");
+            .GreaterThanOrEqualTo(x => x.Cost).WithMessage("Price cannot be lower than cost.");
 
         RuleFor(x => x.Cost)
-            .GreaterThanOrEqualTo(0).WithMessage("El costo no puede ser negativo.");
+            .GreaterThanOrEqualTo(0).WithMessage("Cost cannot be negative.");
 
         RuleFor(x => x.Stock)
-            .GreaterThanOrEqualTo(0).WithMessage("El stock no puede ser negativo.");
+            .GreaterThanOrEqualTo(0).WithMessage("Stock cannot be negative.");
 
         RuleFor(x => x.MinStock)
-            .GreaterThanOrEqualTo(0).WithMessage("El stock mínimo no puede ser negativo.");
+            .GreaterThanOrEqualTo(0).WithMessage("Minimum stock cannot be negative.");
     }
 }

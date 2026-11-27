@@ -22,8 +22,8 @@ export function ProductFormDialog({ state, onClose, onSaved }: Props) {
     <Dialog
       open={state !== null}
       onClose={onClose}
-      title={isEdit ? 'Editar producto' : 'Nuevo producto'}
-      description={isEdit ? 'El SKU no se puede cambiar.' : 'Completa los datos del producto.'}
+      title={isEdit ? 'Edit product' : 'New product'}
+      description={isEdit ? "The SKU can't be changed." : 'Fill in the product details.'}
     >
       {/* key: al cambiar de producto, el formulario se reinicia desde cero */}
       {state && <ProductForm key={state.mode === 'edit' ? state.id : 'new'} state={state} onClose={onClose} onSaved={onSaved} />}
@@ -57,10 +57,10 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
     try {
       if (editId) {
         await updateProduct.mutateAsync(values)
-        onSaved(`“${values.name}” se actualizó`)
+        onSaved(`“${values.name}” updated`)
       } else {
         await createProduct.mutateAsync(values)
-        onSaved(`“${values.name}” se creó`)
+        onSaved(`“${values.name}” created`)
       }
       onClose()
     } catch (e) {
@@ -70,12 +70,12 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
           setError(field as FieldPath<ProductFormValues>, { message })
         }
       } else {
-        setError('root', { message: e instanceof Error ? e.message : 'No se pudo guardar' })
+        setError('root', { message: e instanceof Error ? e.message : "Couldn't save the product" })
       }
     }
   }
 
-  if (editId && product.isPending) return <p className="text-ink-3 py-8 text-center text-sm">Cargando producto…</p>
+  if (editId && product.isPending) return <p className="text-ink-3 py-8 text-center text-sm">Loading product…</p>
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
@@ -91,13 +91,13 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
           <input
             {...register('sku')} aria-invalid={!!errors.sku}
             readOnly={!!editId}
-            placeholder="Ej. ELEC-2001"
+            placeholder="e.g. ELEC-2001"
             className={`${inputClass} uppercase ${editId ? 'text-ink-3 cursor-not-allowed' : ''}`}
           />
         </Field>
-        <Field label="Categoría" error={errors.categoryId?.message}>
+        <Field label="Category" error={errors.categoryId?.message}>
           <select {...register('categoryId')} aria-invalid={!!errors.categoryId} className={inputClass}>
-            <option value="">Selecciona…</option>
+            <option value="">Select…</option>
             {categories.data?.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -107,35 +107,35 @@ function ProductForm({ state, onClose, onSaved }: { state: NonNullable<ProductDi
         </Field>
       </div>
 
-      <Field label="Nombre" error={errors.name?.message}>
-        <input {...register('name')} aria-invalid={!!errors.name} placeholder="Ej. Teclado inalámbrico" className={inputClass} />
+      <Field label="Name" error={errors.name?.message}>
+        <input {...register('name')} aria-invalid={!!errors.name} placeholder="e.g. Wireless keyboard" className={inputClass} />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Precio de venta (MXN)" error={errors.price?.message}>
+        <Field label="Sale price (MXN)" error={errors.price?.message}>
           <input type="number" step="0.01" {...register('price', { valueAsNumber: true })} aria-invalid={!!errors.price} className={inputClass} />
         </Field>
-        <Field label="Costo (MXN)" error={errors.cost?.message}>
+        <Field label="Cost (MXN)" error={errors.cost?.message}>
           <input type="number" step="0.01" {...register('cost', { valueAsNumber: true })} aria-invalid={!!errors.cost} className={inputClass} />
         </Field>
-        <Field label="Stock actual" error={errors.stock?.message}>
+        <Field label="Current stock" error={errors.stock?.message}>
           <input type="number" step="1" {...register('stock', { valueAsNumber: true })} aria-invalid={!!errors.stock} className={inputClass} />
         </Field>
-        <Field label="Stock mínimo" error={errors.minStock?.message}>
+        <Field label="Minimum stock" error={errors.minStock?.message}>
           <input type="number" step="1" {...register('minStock', { valueAsNumber: true })} aria-invalid={!!errors.minStock} className={inputClass} />
         </Field>
       </div>
 
       <footer className="mt-2 flex justify-end gap-2">
         <button type="button" onClick={onClose} className="border-line text-ink hover:bg-surface-2 rounded-full border px-5 py-2 text-sm">
-          Cancelar
+          Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
           className="bg-accent text-on-accent rounded-full px-5 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
-          {isSubmitting ? 'Guardando…' : editId ? 'Guardar cambios' : 'Crear producto'}
+          {isSubmitting ? 'Saving…' : editId ? 'Save changes' : 'Create product'}
         </button>
       </footer>
     </form>

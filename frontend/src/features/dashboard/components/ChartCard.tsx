@@ -39,7 +39,7 @@ export function ChartCard({ index, title, subtitle, chart, table, className = ''
 /** Interruptor "Gráfica | Tabla" en texto (más claro que dos íconos). */
 export function ViewToggle({ view, onChange }: { view: 'chart' | 'table'; onChange: (v: 'chart' | 'table') => void }) {
   return (
-    <div className="bg-surface-2 flex shrink-0 rounded-full p-0.5 font-mono text-[11px]" role="group" aria-label="Vista">
+    <div className="bg-surface-2 flex shrink-0 rounded-full p-0.5 font-mono text-[11px]" role="group" aria-label="View">
       {(['chart', 'table'] as const).map((v) => (
         <button
           key={v}
@@ -50,7 +50,7 @@ export function ViewToggle({ view, onChange }: { view: 'chart' | 'table'; onChan
             view === v ? 'bg-surface text-ink shadow-sm' : 'text-ink-3 hover:text-ink'
           }`}
         >
-          {v === 'chart' ? 'Gráfica' : 'Tabla'}
+          {v === 'chart' ? 'Chart' : 'Table'}
         </button>
       ))}
     </div>

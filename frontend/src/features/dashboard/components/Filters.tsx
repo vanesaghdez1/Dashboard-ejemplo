@@ -9,7 +9,7 @@ const RANGE_OPTIONS: { value: RangePreset; label: string }[] = [
   { value: '3m', label: '3M' },
   { value: '6m', label: '6M' },
   { value: '12m', label: '12M' },
-  { value: 'all', label: 'Todo' },
+  { value: 'all', label: 'All' },
 ]
 
 interface FiltersProps {
@@ -28,7 +28,7 @@ interface FiltersProps {
 export function Filters({ range, onRangeChange, branchId, onBranchChange, branches, lockedBranchName, actions }: FiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="border-line bg-surface flex rounded-full border p-1" role="group" aria-label="Periodo">
+      <div className="border-line bg-surface flex rounded-full border p-1" role="group" aria-label="Period">
         {RANGE_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -48,7 +48,7 @@ export function Filters({ range, onRangeChange, branchId, onBranchChange, branch
         <span className="border-line bg-surface text-ink flex items-center gap-2 rounded-full border px-4 py-2 text-sm">
           <MapPin size={14} className="text-accent" aria-hidden />
           {lockedBranchName}
-          <span className="sr-only">(sucursal asignada)</span>
+          <span className="sr-only">(assigned branch)</span>
         </span>
       ) : (
         <BranchSelect branchId={branchId} onBranchChange={onBranchChange} branches={branches} />
@@ -62,7 +62,7 @@ function BranchSelect({ branchId, onBranchChange, branches }: Pick<FiltersProps,
   return (
     <div className="relative">
       <label className="sr-only" htmlFor="branch-filter">
-        Sucursal
+        Branch
       </label>
       <MapPin size={14} className="text-accent pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2" aria-hidden />
       <select
@@ -71,7 +71,7 @@ function BranchSelect({ branchId, onBranchChange, branches }: Pick<FiltersProps,
         onChange={(e) => onBranchChange(e.target.value)}
         className="border-line bg-surface text-ink hover:bg-surface-2 cursor-pointer appearance-none rounded-full border py-2 pr-9 pl-9 text-sm transition-colors"
       >
-        <option value="">Todas las sucursales</option>
+        <option value="">All branches</option>
         {branches.map((b) => (
           <option key={b.id} value={b.id}>
             {b.name}

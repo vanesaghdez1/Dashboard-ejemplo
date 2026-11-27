@@ -59,7 +59,7 @@ export function CommandPalette({ open, onClose, actions, onProductSelected }: Co
       label: p.name,
       hint: `${p.sku} · ${formatCurrency(p.price)}`,
       icon: <Package size={16} aria-hidden />,
-      group: 'Productos',
+      group: 'Products',
       run: () => onProductSelected(p),
     }))
     return [...matched, ...found]
@@ -93,7 +93,7 @@ export function CommandPalette({ open, onClose, actions, onProductSelected }: Co
       ref={dialogRef}
       onClose={onClose}
       onClick={(e) => e.target === dialogRef.current && onClose()} // clic fuera = cerrar
-      aria-label="Paleta de comandos"
+      aria-label="Command palette"
       className="bg-surface text-ink border-line shadow-card mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border p-0 [&[open]]:animate-[pop_.18s_ease-out]"
     >
       {open && (
@@ -107,8 +107,8 @@ export function CommandPalette({ open, onClose, actions, onProductSelected }: Co
                 setQuery(e.target.value)
                 setActive(0)
               }}
-              placeholder="Busca un producto o escribe un comando…"
-              aria-label="Buscar"
+              placeholder="Search products or type a command…"
+              aria-label="Search"
               aria-controls="palette-results"
               aria-activedescendant={items[safeActive]?.id}
               role="combobox"
@@ -148,15 +148,15 @@ export function CommandPalette({ open, onClose, actions, onProductSelected }: Co
             })}
             {items.length === 0 && (
               <li className="text-ink-3 px-3 py-8 text-center text-sm">
-                {products.isFetching ? 'Buscando…' : `Sin resultados para “${term}”`}
+                {products.isFetching ? 'Searching…' : `No results for “${term}”`}
               </li>
             )}
           </ul>
 
           <footer className="border-line text-ink-3 flex gap-4 border-t px-4 py-2.5 font-mono text-[11px]">
-            <span>↑↓ moverse</span>
-            <span>↵ abrir</span>
-            <span className="ml-auto">Escribe 2+ letras para buscar productos</span>
+            <span>↑↓ navigate</span>
+            <span>↵ open</span>
+            <span className="ml-auto">Type 2+ letters to search products</span>
           </footer>
         </div>
       )}

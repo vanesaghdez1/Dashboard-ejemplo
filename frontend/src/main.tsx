@@ -49,7 +49,7 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: 'productos',
+        path: 'products',
         lazy: () => import('./features/products/ProductsPage').then((m) => ({ Component: m.ProductsPage })),
       },
     ],
